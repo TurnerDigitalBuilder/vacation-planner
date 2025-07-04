@@ -78,6 +78,8 @@ function formatCost(number) {
 document.addEventListener('DOMContentLoaded', function() {
     showAllBtn = document.getElementById('showAllBtn');
     const autoZoomToggle = document.getElementById('autoZoomToggle');
+    const arrivalDateInput = document.getElementById('modalArrivalDate');
+    const departureDateInput = document.getElementById('modalDepartureDate');
 
     initializeMap();
     checkForInitialData();
@@ -85,6 +87,22 @@ document.addEventListener('DOMContentLoaded', function() {
     showAllBtn.addEventListener('click', showAllDays);
     autoZoomToggle.addEventListener('change', (e) => {
         autoZoomEnabled = e.target.checked;
+    });
+
+    // Add event listener for the arrival date picker
+    arrivalDateInput.addEventListener('change', () => {
+        const arrivalDate = arrivalDateInput.value;
+        if (arrivalDate) {
+            // Set the minimum selectable date for the departure date
+            departureDateInput.min = arrivalDate;
+
+            // Automatically set the departure date to the next day if it's not already set or is before the arrival date
+            if (!departureDateInput.value || departureDateInput.value < arrivalDate) {
+                const nextDay = new Date(arrivalDate);
+                nextDay.setDate(nextDay.getDate() + 2); // Add 2 because of timezone handling with setDate
+                departureDateInput.value = nextDay.toISOString().split('T')[0];
+            }
+        }
     });
 });
 
@@ -166,6 +184,8 @@ function clearModalForm() {
     form.querySelector('#modalCoordinates').value = '';
     form.querySelector('#modalWebsiteUrl').value = '';
     form.querySelector('#modalGoogleMapsUrl').value = '';
+    // Reset min attribute on departure date
+    form.querySelector('#modalDepartureDate').min = '';
 }
 
 // Save destination
