@@ -87,21 +87,6 @@ function initializeMap() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
-    
-    map.on('contextmenu', function(e) {
-        const lat = e.latlng.lat.toFixed(4);
-        const lng = e.latlng.lng.toFixed(4);
-        
-        if (document.getElementById('destinationModal').style.display === 'block') {
-            document.getElementById('modalLatitude').value = lat;
-            document.getElementById('modalLongitude').value = lng;
-        }
-        
-        L.popup()
-            .setLatLng(e.latlng)
-            .setContent(`Coordinates: ${lat}, ${lng}<br><small>Added to form if open</small>`)
-            .openOn(map);
-    });
 }
 
 // Check for initial data
@@ -159,8 +144,7 @@ function openAddModal(id = null) {
             document.getElementById('modalCategory').value = dest.category || 'activity';
             document.getElementById('modalCost').value = dest.cost || '';
             document.getElementById('modalActivities').value = dest.activities;
-            document.getElementById('modalLatitude').value = dest.lat || '';
-            document.getElementById('modalLongitude').value = dest.lng || '';
+            document.getElementById('modalCoordinates').value = (dest.lat && dest.lng) ? `${dest.lat}, ${dest.lng}` : '';
         }
     } else {
         currentEditingId = null;
@@ -185,8 +169,7 @@ function clearModalForm() {
     form.querySelector('#modalCategory').value = 'activity';
     form.querySelector('#modalCost').value = '';
     form.querySelector('#modalActivities').value = '';
-    form.querySelector('#modalLatitude').value = '';
-    form.querySelector('#modalLongitude').value = '';
+    form.querySelector('#modalCoordinates').value = '';
 }
 
 // Save destination
@@ -197,9 +180,20 @@ function saveDestination() {
     const category = document.getElementById('modalCategory').value;
     const cost = parseFloat(document.getElementById('modalCost').value) || 0;
     const activities = document.getElementById('modalActivities').value;
-    const lat = parseFloat(document.getElementById('modalLatitude').value) || 0;
-    const lng = parseFloat(document.getElementById('modalLongitude').value) || 0;
     
+    const coordString = document.getElementById('modalCoordinates').value;
+    let lat = 0;
+    let lng = 0;
+    if (coordString) {
+        const parts = coordString.split(',');
+        if (parts.length === 2) {
+            lat = parseFloat(parts[0].trim());
+            lng = parseFloat(parts[1].trim());
+        }
+    }
+    lat = isNaN(lat) ? 0 : lat;
+    lng = isNaN(lng) ? 0 : lng;
+
     if (name && arrivalDate && departureDate) {
         if (currentEditingId) {
             const destIndex = destinations.findIndex(d => d.id === currentEditingId);
