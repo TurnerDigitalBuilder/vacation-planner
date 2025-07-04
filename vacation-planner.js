@@ -141,11 +141,9 @@ function checkForInitialData() {
 // Modal functions
 function openAddModal(id = null) {
     const modal = document.getElementById('destinationModal');
-    const modalTitle = document.getElementById('modalTitle');
     
     if (id) {
         currentEditingId = id;
-        modalTitle.textContent = 'Edit Destination';
         const dest = destinations.find(d => d.id === id);
         if (dest) {
             document.getElementById('modalDestName').value = dest.name;
@@ -160,7 +158,6 @@ function openAddModal(id = null) {
         }
     } else {
         currentEditingId = null;
-        modalTitle.textContent = 'Add New Destination';
         clearModalForm();
     }
     
@@ -499,12 +496,6 @@ function importFromJSON(event) {
 }
 
 // Event listeners
-/* window.onclick = function(event) {
-    if (event.target === document.getElementById('destinationModal')) {
-        closeModal();
-    }
-} */
-
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeModal();
