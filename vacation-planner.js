@@ -63,6 +63,14 @@ function formatDateRange(startDate, endDate) {
     return `${formattedStart} to ${formatDate(endDate)}`;
 }
 
+// Helper function to format costs with commas and no decimals
+function formatCost(number) {
+    if (isNaN(number)) {
+        return '0';
+    }
+    return Math.round(number).toLocaleString('en-US');
+}
+
 
 // --- INITIALIZATION ---
 
@@ -91,36 +99,20 @@ function initializeMap() {
 
 // Check for initial data
 function checkForInitialData() {
-    fetch('iceland-itinerary.csv')
+    fetch('iceland-itinerary.json')
         .then(response => {
-            if (response.ok) return response.text();
-            throw new Error('CSV not found');
+            if (response.ok) return response.json();
+            throw new Error('JSON file not found');
         })
-        .then(csvText => {
-            Papa.parse(csvText, {
-                header: true,
-                complete: function(results) {
-                    destinations = results.data
-                        .filter(row => row.Name)
-                        .map((row, index) => ({
-                            id: Date.now() + index,
-                            name: row.Name || '',
-                            arrivalDate: row['Arrival Date'] || '',
-                            departureDate: row['Departure Date'] || '',
-                            activities: row.Activities || '',
-                            category: row.Category || 'activity',
-                            cost: parseFloat(row.Cost) || 0,
-                            lat: parseFloat(row.Latitude) || 0,
-                            lng: parseFloat(row.Longitude) || 0
-                        }));
-                    
-                    renderDestinations();
-                    updateMarkers();
-                }
-            });
+        .then(data => {
+            if (Array.isArray(data)) {
+                destinations = data;
+                renderDestinations();
+                updateMarkers();
+            }
         })
         .catch(error => {
-            console.log('No initial CSV file found, starting with empty itinerary');
+            console.log('No initial JSON file found, starting with empty itinerary');
             renderDestinations();
         });
 }
@@ -145,6 +137,8 @@ function openAddModal(id = null) {
             document.getElementById('modalCost').value = dest.cost || '';
             document.getElementById('modalActivities').value = dest.activities;
             document.getElementById('modalCoordinates').value = (dest.lat && dest.lng) ? `${dest.lat}, ${dest.lng}` : '';
+            document.getElementById('modalWebsiteUrl').value = dest.websiteUrl || '';
+            document.getElementById('modalGoogleMapsUrl').value = dest.googleMapsUrl || '';
         }
     } else {
         currentEditingId = null;
@@ -170,6 +164,8 @@ function clearModalForm() {
     form.querySelector('#modalCost').value = '';
     form.querySelector('#modalActivities').value = '';
     form.querySelector('#modalCoordinates').value = '';
+    form.querySelector('#modalWebsiteUrl').value = '';
+    form.querySelector('#modalGoogleMapsUrl').value = '';
 }
 
 // Save destination
@@ -180,6 +176,8 @@ function saveDestination() {
     const category = document.getElementById('modalCategory').value;
     const cost = parseFloat(document.getElementById('modalCost').value) || 0;
     const activities = document.getElementById('modalActivities').value;
+    const websiteUrl = document.getElementById('modalWebsiteUrl').value;
+    const googleMapsUrl = document.getElementById('modalGoogleMapsUrl').value;
     
     const coordString = document.getElementById('modalCoordinates').value;
     let lat = 0;
@@ -195,13 +193,17 @@ function saveDestination() {
     lng = isNaN(lng) ? 0 : lng;
 
     if (name && arrivalDate && departureDate) {
+        const destinationData = { 
+            name, arrivalDate, departureDate, category, cost, activities, lat, lng, websiteUrl, googleMapsUrl 
+        };
+
         if (currentEditingId) {
             const destIndex = destinations.findIndex(d => d.id === currentEditingId);
             if (destIndex !== -1) {
-                destinations[destIndex] = { ...destinations[destIndex], name, arrivalDate, departureDate, category, cost, activities, lat, lng };
+                destinations[destIndex] = { ...destinationData, id: currentEditingId };
             }
         } else {
-            destinations.push({ id: Date.now(), name, arrivalDate, departureDate, category, cost, activities, lat, lng });
+            destinations.push({ ...destinationData, id: Date.now() });
         }
         
         renderDestinations();
@@ -231,7 +233,7 @@ function renderDestinations() {
     
     if (destinations.length === 0) {
         container.innerHTML = `<div class="empty-state"><i class="fas fa-map-marked-alt"></i><p>No destinations yet.</p></div>`;
-        document.getElementById('totalCostDisplay').textContent = '$0.00';
+        document.getElementById('totalCostDisplay').textContent = '$0';
         return;
     }
     
@@ -273,6 +275,13 @@ function renderDestinations() {
             const iconClass = categoryIcons[dest.category] || 'fa-map-pin';
             const categoryIconHtml = `<div class="category-icon" style="background-color: ${dayColor}"><i class="fas ${iconClass}"></i></div>`;
 
+            const linksHtml = `
+                <div class="destination-links">
+                    ${dest.websiteUrl ? `<a href="${dest.websiteUrl}" target="_blank" title="Visit Website"><i class="fas fa-link"></i></a>` : ''}
+                    ${dest.googleMapsUrl ? `<a href="${dest.googleMapsUrl}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i></a>` : ''}
+                </div>
+            `;
+
             div.innerHTML = `
                 <div class="destination-header">
                     ${categoryIconHtml}
@@ -284,9 +293,10 @@ function renderDestinations() {
                         </div>
                         <div class="destination-meta cost">
                             <i class="fas fa-dollar-sign"></i>
-                            <span>${dest.cost.toFixed(2)}</span>
+                            <span>${formatCost(dest.cost)}</span>
                         </div>
                         <div class="destination-activities">${dest.activities}</div>
+                        ${linksHtml}
                     </div>
                 </div>
                 <div class="destination-actions">
@@ -299,7 +309,7 @@ function renderDestinations() {
         container.appendChild(dayGroup);
         dayCounter++;
     }
-    document.getElementById('totalCostDisplay').textContent = `$${totalCost.toFixed(2)}`;
+    document.getElementById('totalCostDisplay').textContent = `$${formatCost(totalCost)}`;
 }
 
 
@@ -328,6 +338,13 @@ function updateMarkers() {
                 iconAnchor: [16, 32]
             });
 
+            const linksHtml = `
+                <div class="destination-links">
+                    ${dest.websiteUrl ? `<a href="${dest.websiteUrl}" target="_blank" title="Visit Website"><i class="fas fa-link"></i> Website</a>` : ''}
+                    ${dest.googleMapsUrl ? `<a href="${dest.googleMapsUrl}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i> Map</a>` : ''}
+                </div>
+            `;
+
             // Create the popup content
             const popupContent = `
                 <div class="map-popup">
@@ -343,11 +360,12 @@ function updateMarkers() {
                     </div>
                     <div class="popup-meta cost">
                         <i class="fas fa-dollar-sign"></i>
-                        <span>$${dest.cost.toFixed(2)}</span>
+                        <span>$${formatCost(dest.cost)}</span>
                     </div>
                     <div class="popup-activities">
                         ${dest.activities || 'No additional notes.'}
                     </div>
+                    ${linksHtml}
                 </div>
             `;
             
@@ -415,62 +433,49 @@ function showAllDays() {
 }
 
 
-// --- CSV AND EVENT LISTENERS ---
+// --- JSON IMPORT/EXPORT AND EVENT LISTENERS ---
 
-// Export to CSV
-function exportToCSV() {
+// Export to JSON
+function exportToJSON() {
     if (destinations.length === 0) {
         alert('No destinations to export!');
         return;
     }
     
-    const csv = Papa.unparse({
-        fields: ['Name', 'Arrival Date', 'Departure Date', 'Category', 'Cost', 'Activities', 'Latitude', 'Longitude'],
-        data: destinations.map(d => [d.name, d.arrivalDate, d.departureDate, d.category, d.cost, d.activities, d.lat, d.lng])
-    });
-    
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const jsonString = JSON.stringify(destinations, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `vacation-itinerary-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `vacation-itinerary-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
 
-// Import from CSV
-function importFromCSV(event) {
+// Import from JSON
+function importFromJSON(event) {
     const file = event.target.files[0];
     if (file) {
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                destinations = results.data
-                    .filter(row => row.Name)
-                    .map((row, index) => ({
-                        id: Date.now() + index,
-                        name: row.Name || '',
-                        arrivalDate: row['Arrival Date'] || '',
-                        departureDate: row['Departure Date'] || '',
-                        category: row.Category || 'activity',
-                        cost: parseFloat(row.Cost) || 0,
-                        activities: row.Activities || '',
-                        lat: parseFloat(row.Latitude) || 0,
-                        lng: parseFloat(row.Longitude) || 0
-                    }));
-                
-                renderDestinations();
-                updateMarkers();
-            },
-            error: function(error) {
-                alert('Error parsing CSV file: ' + error.message);
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (Array.isArray(data)) {
+                    destinations = data;
+                    renderDestinations();
+                    updateMarkers();
+                } else {
+                    alert('Invalid JSON file. The file must contain an array of destinations.');
+                }
+            } catch (error) {
+                alert('Error parsing JSON file: ' + error.message);
             }
-        });
+        };
+        reader.readAsText(file);
     }
-    event.target.value = '';
+    event.target.value = ''; // Reset file input
 }
 
 // Event listeners
