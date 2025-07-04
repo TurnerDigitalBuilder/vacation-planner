@@ -74,7 +74,6 @@
                     <h4>Map Legend</h4>
                     <p>🎨 Pin colors represent different days</p>
                     <p>📝 Click markers for details</p>
-                    <p>🖱️ Right-click to get coordinates</p>
                 </div>
             </div>
         </div>
@@ -128,21 +127,11 @@
                     <textarea id="modalActivities" rows="5" placeholder="Add details, notes, or specific plans"></textarea>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="modalLatitude">Latitude</label>
-                        <input type="number" id="modalLatitude" step="any" placeholder="64.1466">
-                    </div>
-                    <div class="form-group">
-                        <label for="modalLongitude">Longitude</label>
-                        <input type="number" id="modalLongitude" step="any" placeholder="-21.9426">
-                    </div>
+                <div class="form-group">
+                    <label for="modalCoordinates">Coordinates</label>
+                    <input type="text" id="modalCoordinates" placeholder="Paste from Google Maps, e.g., 64.1466, -21.9426">
                 </div>
                 
-                    <div class="form-tip">
-                        <i class="fas fa-info-circle"></i>
-                        <span>Tip: Right-click on the map to get coordinates for your destination</span>
-                    </div>
             </div>
             <div class="modal-footer">
                 <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
