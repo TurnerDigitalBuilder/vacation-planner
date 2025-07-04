@@ -499,11 +499,11 @@ function importFromJSON(event) {
 }
 
 // Event listeners
-window.onclick = function(event) {
+/* window.onclick = function(event) {
     if (event.target === document.getElementById('destinationModal')) {
         closeModal();
     }
-}
+} */
 
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
