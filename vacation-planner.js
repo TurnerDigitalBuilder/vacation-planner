@@ -16,6 +16,8 @@ const categoryIcons = {
     fly: 'fa-plane-departure',
     drive: 'fa-car',
     photo: 'fa-camera',
+    beach: 'fa-umbrella-beach',
+    falls: 'fa-water',
     shopping: 'fa-shopping-bag',
     entertainment: 'fa-film',
     other: 'fa-map-pin'
