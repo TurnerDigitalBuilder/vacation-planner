@@ -312,6 +312,9 @@ body {
 .destination-meta i { font-size: 12px; width: 14px; text-align: center; color: inherit; }
 .destination-meta.cost { font-weight: 500; color: #388e3c; }
 .destination-meta.time { font-weight: 500; color: #6f42c1; }
+/* ADDED ADDRESS STYLING */
+.destination-meta.address { color: #555; }
+
 
 .destination-activities {
     color: #555;
