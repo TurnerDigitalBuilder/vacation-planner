@@ -43,7 +43,7 @@ function hexToRgba(hex, alpha = 1) {
 // Helper function to format date strings to MM/DD/YYYY
 function formatDate(dateString) {
     if (!dateString || dateString.length < 10) {
-        return dateString; // Return original if invalid or not in<x_bin_342>-MM-DD format
+        return dateString; // Return original if invalid or not in YYYY-MM-DD format
     }
     // Split date to avoid timezone issues that can change the date
     const parts = dateString.split('-');
