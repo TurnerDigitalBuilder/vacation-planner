@@ -292,7 +292,6 @@ body {
 .destination-meta i { font-size: 12px; width: 14px; text-align: center; color: #999; }
 .destination-meta.cost { font-weight: 500; color: #388e3c; }
 .destination-activities { color: #555; font-size: 14px; margin-top: 8px; line-height: 1.5; }
-.destination-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 5px; }
 
 .destination-links {
     margin-top: 10px;
@@ -316,6 +315,51 @@ body {
 .destination-links i {
     margin-right: 5px;
 }
+
+/* NEW Destination Action Buttons */
+.destination-actions {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.destination-item:hover .destination-actions {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.destination-actions .btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 13px;
+    color: #888;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.destination-actions .btn:hover {
+    transform: scale(1.1);
+    background-color: #f0f0f0;
+}
+
+.destination-actions .btn-edit:hover {
+    color: #007bff;
+    background-color: #e3f2fd;
+}
+
+.destination-actions .btn-danger:hover {
+    color: #dc3545;
+    background-color: #ffebee;
+}
+
 
 /* Modal Styles */
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
