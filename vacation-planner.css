@@ -288,12 +288,24 @@ body {
 .destination-meta i { font-size: 12px; width: 14px; text-align: center; color: inherit; }
 .destination-meta.cost { font-weight: 500; color: #388e3c; }
 .destination-meta.time { font-weight: 500; color: #6f42c1; }
-.destination-activities { color: #555; font-size: 14px; margin-top: 8px; line-height: 1.5; flex-grow: 1; }
-.destination-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
-.destination-links { display: flex; gap: 15px; }
-.destination-links a { color: #2196f3; text-decoration: none; font-size: 14px; transition: color 0.2s; }
-.destination-links a:hover { color: #1976d2; }
-.destination-links i { margin-right: 5px; }
+
+.destination-activities {
+    color: #555;
+    font-size: 14px;
+    margin-top: 8px;
+    line-height: 1.5;
+    flex-grow: 1;
+    /* ADDED: Styles for text truncation */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.destination-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
+.destination-links { display: flex; gap: 8px; }
+.destination-links a { color: #2196f3; text-decoration: none; font-size: 14px; transition: color 0.2s; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+.destination-links a:hover { background-color: #f0f0f0; color: #1976d2; }
 
 .destination-actions { display: flex; gap: 8px; }
 .destination-actions .btn { width: 32px; height: 32px; border-radius: 50%; padding: 0; font-size: 13px; background-color: transparent; border: none; box-shadow: none; }
@@ -335,7 +347,7 @@ body {
 
 /* --- Map Popup Styles --- */
 .leaflet-popup-content-wrapper { border-radius: 8px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-.leaflet-popup-content { margin: 0 !important; padding: 0 !important; width: 300px !important; /* MODIFIED: Increased width */ }
+.leaflet-popup-content { margin: 0 !important; padding: 0 !important; width: 300px !important; }
 .map-popup { padding: 15px; position: relative; }
 .map-popup .popup-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .map-popup .popup-header h4 { font-size: 16px; font-weight: 600; margin: 0; line-height: 1.2; }
