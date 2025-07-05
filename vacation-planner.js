@@ -71,6 +71,15 @@ function formatCost(number) {
     return Math.round(number).toLocaleString('en-US');
 }
 
+// Helper function to format time, adding 'hr' or 'hrs'
+function formatTime(hours) {
+    if (isNaN(hours) || hours === 0) {
+        return '';
+    }
+    return `${hours} ${hours === 1 ? 'hr' : 'hrs'}`;
+}
+
+
 // --- DATA PERSISTENCE ---
 
 // Save the current itinerary to localStorage
@@ -123,11 +132,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set the minimum selectable date for the departure date
             departureDateInput.min = arrivalDate;
 
-            // Automatically set the departure date to the next day if it's not already set or is before the arrival date
+            // Automatically set the departure date to the same day
             if (!departureDateInput.value || departureDateInput.value < arrivalDate) {
-                const nextDay = new Date(arrivalDate);
-                nextDay.setDate(nextDay.getDate() + 2); // Add 2 because of timezone handling with setDate
-                departureDateInput.value = nextDay.toISOString().split('T')[0];
+                departureDateInput.value = arrivalDate;
             }
         }
     });
@@ -158,6 +165,7 @@ function openAddModal(id = null) {
             document.getElementById('modalDepartureDate').value = dest.departureDate;
             document.getElementById('modalCategory').value = dest.category || 'activity';
             document.getElementById('modalCost').value = dest.cost || '';
+            document.getElementById('modalTime').value = dest.time || '';
             document.getElementById('modalActivities').value = dest.activities;
             document.getElementById('modalCoordinates').value = (dest.lat && dest.lng) ? `${dest.lat}, ${dest.lng}` : '';
             document.getElementById('modalWebsiteUrl').value = dest.websiteUrl || '';
@@ -183,6 +191,7 @@ function clearModalForm() {
     form.querySelector('#modalDepartureDate').value = '';
     form.querySelector('#modalCategory').value = 'activity';
     form.querySelector('#modalCost').value = '';
+    form.querySelector('#modalTime').value = '';
     form.querySelector('#modalActivities').value = '';
     form.querySelector('#modalCoordinates').value = '';
     form.querySelector('#modalWebsiteUrl').value = '';
@@ -198,6 +207,7 @@ function saveDestination() {
     const departureDate = document.getElementById('modalDepartureDate').value;
     const category = document.getElementById('modalCategory').value;
     const cost = parseFloat(document.getElementById('modalCost').value) || 0;
+    const time = parseFloat(document.getElementById('modalTime').value) || 0;
     const activities = document.getElementById('modalActivities').value;
     const websiteUrl = document.getElementById('modalWebsiteUrl').value;
     const googleMapsUrl = document.getElementById('modalGoogleMapsUrl').value;
@@ -217,7 +227,7 @@ function saveDestination() {
 
     if (name && arrivalDate && departureDate) {
         const destinationData = { 
-            name, arrivalDate, departureDate, category, cost, activities, lat, lng, websiteUrl, googleMapsUrl 
+            name, arrivalDate, departureDate, category, cost, time, activities, lat, lng, websiteUrl, googleMapsUrl 
         };
 
         if (currentEditingId) {
@@ -240,6 +250,14 @@ function saveDestination() {
 function deleteDestination(id) {
     if (confirm('Are you sure you want to delete this destination?')) {
         destinations = destinations.filter(d => d.id !== id);
+        renderAll();
+    }
+}
+
+// clear all destinations
+function clearAll() {
+    if (confirm('Are you sure you want to clear all destinations?')) {
+        destinations = [];
         renderAll();
     }
 }
@@ -289,13 +307,13 @@ function renderDestinations() {
 
         const daySeparator = document.createElement('div');
         daySeparator.className = 'day-separator';
-        daySeparator.innerHTML = `Day ${dayCounter + 1} &middot; ${formatDate(date)}`;
         daySeparator.style.color = dayColor;
         daySeparator.addEventListener('click', () => filterByDay(date));
-        dayGroup.appendChild(daySeparator);
-
+        
+        let dayTotalTime = 0;
         groupedByDate[date].forEach(dest => {
             totalCost += dest.cost;
+            dayTotalTime += dest.time || 0;
             const div = document.createElement('div');
             div.className = 'destination-item';
             div.dataset.id = dest.id;
@@ -309,6 +327,20 @@ function renderDestinations() {
                     ${dest.googleMapsUrl ? `<a href="${dest.googleMapsUrl}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i></a>` : ''}
                 </div>
             `;
+            
+            const actionsHtml = `
+                <div class="destination-actions">
+                    <button class="btn btn-edit" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-danger" onclick="deleteDestination(${dest.id})"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `;
+            
+            const timeHtml = dest.time ? `
+                <div class="destination-meta time">
+                    <i class="fas fa-clock"></i>
+                    <span>${formatTime(dest.time)}</span>
+                </div>
+            ` : '';
 
             div.innerHTML = `
                 <div class="destination-header">
@@ -323,17 +355,22 @@ function renderDestinations() {
                             <i class="fas fa-dollar-sign"></i>
                             <span>${formatCost(dest.cost)}</span>
                         </div>
+                        ${timeHtml}
                         <div class="destination-activities">${dest.activities}</div>
-                        ${linksHtml}
+                         <div class="destination-footer">
+                            ${linksHtml}
+                            ${actionsHtml}
+                        </div>
                     </div>
-                </div>
-                <div class="destination-actions">
-                    <button class="btn btn-edit" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-danger" onclick="deleteDestination(${dest.id})"><i class="fas fa-trash-alt"></i></button>
                 </div>
             `;
             dayGroup.appendChild(div);
         });
+
+        const totalTimeHtml = dayTotalTime > 0 ? `<div class="day-total-time">${formatTime(dayTotalTime)}</div>` : '';
+        daySeparator.innerHTML = `<span>Day ${dayCounter + 1} &middot; ${formatDate(date)}</span> ${totalTimeHtml}`;
+        dayGroup.insertBefore(daySeparator, dayGroup.firstChild);
+
         container.appendChild(dayGroup);
         dayCounter++;
     }
@@ -372,6 +409,13 @@ function updateMarkers() {
                     ${dest.googleMapsUrl ? `<a href="${dest.googleMapsUrl}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i> Map</a>` : ''}
                 </div>
             `;
+            
+            const timeHtml = dest.time ? `
+                <div class="popup-meta">
+                    <i class="fas fa-clock"></i>
+                    <span>${formatTime(dest.time)}</span>
+                </div>
+            ` : '';
 
             // Create the popup content
             const popupContent = `
@@ -390,6 +434,7 @@ function updateMarkers() {
                         <i class="fas fa-dollar-sign"></i>
                         <span>$${formatCost(dest.cost)}</span>
                     </div>
+                    ${timeHtml}
                     <div class="popup-activities">
                         ${dest.activities || 'No additional notes.'}
                     </div>
@@ -488,6 +533,12 @@ function exportToJSON() {
 
 // Import from JSON
 function importFromJSON(event) {
+    if (destinations.length > 0) {
+        if (!confirm('An itinerary is already loaded. Do you want to overwrite it?')) {
+            event.target.value = ''; // Reset file input
+            return;
+        }
+    }
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
