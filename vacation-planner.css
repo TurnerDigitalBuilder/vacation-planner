@@ -281,6 +281,35 @@ body {
 }
 .btn-edit-day:hover { background-color: #f0f0f0; color: #333; }
 
+/* ADD THE NEW STYLES BELOW THIS LINE */
+.day-group.collapsed > .destination-item {
+    display: none;
+}
+
+.day-separator-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-toggle-day {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    font-size: 16px;
+    padding: 5px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+}
+
+.btn-toggle-day:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+/* ADD THE NEW STYLES ABOVE THIS LINE */
+
 .destination-item {
     border: 1px solid #e0e0e0;
     border-radius: 8px;
