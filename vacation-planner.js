@@ -102,7 +102,6 @@ function loadInitialData() {
 document.addEventListener('DOMContentLoaded', function() {
     const autoZoomToggle = document.getElementById('autoZoomToggle');
     const arrivalDateInput = document.getElementById('modalArrivalDate');
-    const departureDateInput = document.getElementById('modalDepartureDate');
     const toggleBtn = document.getElementById('toggleSidebarHeaderBtn');
     const collapsibleContent = document.getElementById('collapsibleSidebarContent');
 
@@ -116,10 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
     arrivalDateInput.addEventListener('change', () => {
         const arrivalDate = arrivalDateInput.value;
         if (arrivalDate) {
-            departureDateInput.min = arrivalDate;
-            if (!currentEditingId && (!departureDateInput.value || departureDateInput.value < arrivalDate)) {
-                departureDateInput.value = arrivalDate;
-            }
+            document.getElementById('modalDepartureDate').min = arrivalDate;
         }
     });
 
@@ -163,17 +159,7 @@ function openAddModal(id = null, dataToLoad = null) {
         document.getElementById('modalGoogleMapsLink').value = destData.googleMapsLink || '';
         document.getElementById('modalAdvisorSiteLink').value = destData.advisorSiteLink || '';
     } else {
-        currentEditingId = null;
-        if (destinations.length > 0) {
-            const earliestDate = destinations.map(d => d.arrivalDate).sort((a, b) => new Date(a) - new Date(b))[0];
-            if (earliestDate) {
-                const arrivalInput = document.getElementById('modalArrivalDate');
-                const departureInput = document.getElementById('modalDepartureDate');
-                arrivalInput.value = earliestDate;
-                departureInput.value = earliestDate;
-                departureInput.min = earliestDate;
-            }
-        }
+        currentEditingId = null; 
     }
     modal.style.display = 'block';
 }
@@ -227,8 +213,8 @@ function saveDestination() {
     lat = isNaN(lat) ? 0 : lat;
     lng = isNaN(lng) ? 0 : lng;
 
-    if (name && arrivalDate) {
-        if (!departureDate) departureDate = arrivalDate;
+    if (name) {
+        if (arrivalDate && !departureDate) departureDate = arrivalDate;
 
         if (currentEditingId && originalArrivalDateForEdit && originalArrivalDateForEdit !== arrivalDate) {
             const originalArrival = new Date(originalArrivalDateForEdit + 'T00:00:00');
@@ -254,7 +240,7 @@ function saveDestination() {
         renderAll();
         closeModal();
     } else {
-        alert('Please fill in at least the destination name and arrival date.');
+        alert('Please enter a destination name.');
     }
 }
 
@@ -316,12 +302,15 @@ function saveDayDetails() {
 }
 
 function openShiftDatesModal() {
-    if (destinations.length === 0) {
-        alert('There are no dates to shift. Please add a destination first.');
+    if (destinations.filter(d => d.arrivalDate).length === 0) {
+        alert('There are no dated destinations to shift.');
         return;
     }
     const modal = document.getElementById('shiftDatesModal');
-    const earliestDate = destinations.map(d => d.arrivalDate).sort((a, b) => new Date(a) - new Date(b))[0];
+    const earliestDate = destinations
+        .filter(d => d.arrivalDate)
+        .map(d => d.arrivalDate)
+        .sort((a, b) => new Date(a) - new Date(b))[0];
     document.getElementById('newStartDate').value = earliestDate;
     modal.style.display = 'block';
 }
@@ -338,17 +327,19 @@ function shiftAllDates() {
     }
 
     const newStartDate = new Date(newStartDateString + 'T00:00:00');
-    const oldStartDateString = destinations.map(d => d.arrivalDate).sort((a, b) => new Date(a) - new Date(b))[0];
+    const oldStartDateString = destinations.filter(d => d.arrivalDate).map(d => d.arrivalDate).sort((a, b) => new Date(a) - new Date(b))[0];
     const oldStartDate = new Date(oldStartDateString + 'T00:00:00');
 
     const diffTime = newStartDate.getTime() - oldStartDate.getTime();
     
     destinations.forEach(dest => {
-        const oldArrival = new Date(dest.arrivalDate + 'T00:00:00');
-        const oldDeparture = new Date(dest.departureDate + 'T00:00:00');
-        
-        dest.arrivalDate = formatDateForInput(new Date(oldArrival.getTime() + diffTime));
-        dest.departureDate = formatDateForInput(new Date(oldDeparture.getTime() + diffTime));
+        if(dest.arrivalDate) {
+            const oldArrival = new Date(dest.arrivalDate + 'T00:00:00');
+            const oldDeparture = new Date(dest.departureDate + 'T00:00:00');
+            
+            dest.arrivalDate = formatDateForInput(new Date(oldArrival.getTime() + diffTime));
+            dest.departureDate = formatDateForInput(new Date(oldDeparture.getTime() + diffTime));
+        }
     });
 
     dayLabels.forEach(label => {
@@ -369,16 +360,21 @@ function renderAll() {
 }
 
 function renderDestinations() {
-    const container = document.getElementById('destinationsList');
-    container.innerHTML = '';
-    
+    const datedContainer = document.getElementById('destinationsList');
+    const unscheduledContainer = document.getElementById('unscheduledContainer');
+    datedContainer.innerHTML = '';
+    unscheduledContainer.innerHTML = '';
+
     if (destinations.length === 0) {
-        container.innerHTML = `<div class="empty-state"><i class="fas fa-map-marked-alt"></i><p>No destinations yet.</p></div>`;
+        datedContainer.innerHTML = `<div class="empty-state"><i class="fas fa-map-marked-alt"></i><p>No destinations yet.</p></div>`;
         document.getElementById('totalCostDisplay').textContent = '$0';
         return;
     }
     
-    const groupedByDate = destinations.reduce((acc, dest) => {
+    const datedDestinations = destinations.filter(d => d.arrivalDate);
+    const undatedDestinations = destinations.filter(d => !d.arrivalDate);
+
+    const groupedByDate = datedDestinations.reduce((acc, dest) => {
         const date = dest.arrivalDate;
         if (!acc[date]) acc[date] = [];
         acc[date].push(dest);
@@ -409,62 +405,7 @@ function renderDestinations() {
         groupedByDate[date].forEach(dest => {
             totalCost += dest.cost;
             dayTotalTime += dest.time || 0;
-            const div = document.createElement('div');
-            div.className = 'destination-item';
-            div.dataset.id = dest.id;
-
-            const iconClass = categoryIcons[dest.category] || 'fa-map-pin';
-            const categoryIconHtml = `<div class="category-icon" style="background-color: ${dayColor}"><i class="fas ${iconClass}"></i></div>`;
-
-            const actionsHtml = `
-                <div class="destination-actions">
-                    <div class="destination-links">
-                        ${dest.websiteLink ? `<a href="${dest.websiteLink}" target="_blank" title="Visit Website"><i class="fas fa-link"></i></a>` : ''}
-                        ${dest.googleMapsLink ? `<a href="${dest.googleMapsLink}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i></a>` : ''}
-                        ${dest.advisorSiteLink ? `<a href="${dest.advisorSiteLink}" target="_blank" title="Visit Advisor Site"><i class="fas fa-user-tie"></i></a>` : ''}
-                    </div>
-                    <div class="crud-actions">
-                        <button class="btn btn-duplicate" onclick="duplicateDestination(${dest.id})"><i class="fas fa-copy"></i></button>
-                        <button class="btn btn-edit" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger" onclick="deleteDestination(${dest.id})"><i class="fas fa-trash-alt"></i></button>
-                    </div>
-                </div>
-            `;
-            
-            const timeHtml = dest.time ? `
-                <div class="destination-meta time">
-                    <i class="fas fa-clock"></i>
-                    <span>${formatTime(dest.time)}</span>
-                </div>
-            ` : '';
-
-            const priority = dest.priority || 'medium';
-            const priorityTagHtml = priority !== 'assumed' ? `<div class="priority-tag priority-${priority}">${priority}</div>` : '';
-
-            div.innerHTML = `
-                <div class="destination-header">
-                    ${categoryIconHtml}
-                    <div class="destination-content">
-                        <div class="destination-title">
-                            <h4>${dest.name}</h4>
-                            ${priorityTagHtml}
-                        </div>
-                        <div class="destination-meta">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>${formatDateRange(dest.arrivalDate, dest.departureDate)}</span>
-                        </div>
-                        <div class="destination-meta cost">
-                            <i class="fas fa-dollar-sign"></i>
-                            <span>${formatCost(dest.cost)}</span>
-                        </div>
-                        ${timeHtml}
-                        <div class="destination-activities">${dest.activities || ''}</div>
-                         <div class="destination-footer">
-                            ${actionsHtml}
-                        </div>
-                    </div>
-                </div>
-            `;
+            const div = createDestinationElement(dest, dayColor);
             dayGroup.appendChild(div);
         });
 
@@ -480,23 +421,105 @@ function renderDestinations() {
             </div>
         `;
 
+        datedContainer.appendChild(dayGroup);
         dayGroup.insertBefore(daySeparator, dayGroup.firstChild);
-        container.appendChild(dayGroup);
         dayCounter++;
     }
+
+    if (undatedDestinations.length > 0) {
+        const unscheduledHeader = document.createElement('h3');
+        unscheduledHeader.textContent = 'Unscheduled';
+        unscheduledContainer.appendChild(unscheduledHeader);
+        const unscheduledGroup = document.createElement('div');
+        unscheduledGroup.className = 'day-group unscheduled';
+        unscheduledGroup.dataset.date = '';
+        
+        undatedDestinations.forEach(dest => {
+            totalCost += dest.cost;
+            const div = createDestinationElement(dest, '#757575');
+            unscheduledGroup.appendChild(div);
+        });
+        unscheduledContainer.appendChild(unscheduledGroup);
+    }
+
     document.getElementById('totalCostDisplay').textContent = `$${formatCost(totalCost)}`;
     initializeSortable();
 }
 
+function createDestinationElement(dest, color) {
+    const div = document.createElement('div');
+    div.className = 'destination-item';
+    div.dataset.id = dest.id;
+
+    const iconClass = categoryIcons[dest.category] || 'fa-map-pin';
+    const categoryIconHtml = `<div class="category-icon" style="background-color: ${color}"><i class="fas ${iconClass}"></i></div>`;
+
+    const actionsHtml = `
+        <div class="destination-actions">
+            <div class="destination-links">
+                ${dest.websiteLink ? `<a href="${dest.websiteLink}" target="_blank" title="Visit Website"><i class="fas fa-link"></i></a>` : ''}
+                ${dest.googleMapsLink ? `<a href="${dest.googleMapsLink}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i></a>` : ''}
+                ${dest.advisorSiteLink ? `<a href="${dest.advisorSiteLink}" target="_blank" title="Visit Advisor Site"><i class="fas fa-user-tie"></i></a>` : ''}
+            </div>
+            <div class="crud-actions">
+                <button class="btn btn-duplicate" onclick="duplicateDestination(${dest.id})" title="Duplicate"><i class="fas fa-copy"></i></button>
+                <button class="btn btn-edit" onclick="openAddModal(${dest.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger" onclick="deleteDestination(${dest.id})" title="Delete"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        </div>
+    `;
+    
+    const timeHtml = dest.time ? `<div class="destination-meta time"><i class="fas fa-clock"></i><span>${formatTime(dest.time)}</span></div>` : '';
+    const priority = dest.priority || 'medium';
+    const priorityTagHtml = priority !== 'assumed' ? `<div class="priority-tag priority-${priority}">${priority}</div>` : '';
+    const dateHtml = dest.arrivalDate ? `<div class="destination-meta"><i class="fas fa-calendar-alt"></i><span>${formatDateRange(dest.arrivalDate, dest.departureDate)}</span></div>` : '';
+
+    div.innerHTML = `
+        <div class="destination-header">
+            ${categoryIconHtml}
+            <div class="destination-content">
+                <div class="destination-title">
+                    <h4>${dest.name}</h4>
+                    ${priorityTagHtml}
+                </div>
+                ${dateHtml}
+                <div class="destination-meta cost">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>${formatCost(dest.cost)}</span>
+                </div>
+                ${timeHtml}
+                <div class="destination-activities">${dest.activities || ''}</div>
+                 <div class="destination-footer">
+                    ${actionsHtml}
+                </div>
+            </div>
+        </div>
+    `;
+    return div;
+}
+
 function initializeSortable() {
-    const dayGroups = document.querySelectorAll('.day-group');
-    dayGroups.forEach(group => {
+    const allGroups = document.querySelectorAll('.day-group');
+    allGroups.forEach(group => {
         new Sortable(group, {
+            group: 'shared-destinations',
             animation: 150,
             handle: '.destination-item',
             ghostClass: 'sortable-ghost',
             onEnd: function (evt) {
+                const itemId = evt.item.dataset.id;
+                const newDate = evt.to.dataset.date;
+                
                 const destinationMap = new Map(destinations.map(d => [d.id.toString(), d]));
+                
+                if (newDate !== undefined && destinationMap.has(itemId)) {
+                    const movedItem = destinationMap.get(itemId);
+                    movedItem.arrivalDate = newDate;
+                    if (!movedItem.departureDate && newDate) {
+                        movedItem.departureDate = newDate;
+                    }
+                }
+                
                 const newDestinations = [];
                 document.querySelectorAll('.destination-item').forEach(item => {
                     const id = item.dataset.id;
@@ -516,7 +539,7 @@ function updateMarkers() {
     markers.forEach(marker => map.removeLayer(marker));
     markers = [];
     
-    const uniqueDates = [...new Set(destinations.map(d => d.arrivalDate))].sort((a,b) => new Date(a) - new Date(b));
+    const uniqueDates = [...new Set(destinations.filter(d=>d.arrivalDate).map(d => d.arrivalDate))].sort((a,b) => new Date(a) - new Date(b));
     const dateColorMap = uniqueDates.reduce((acc, date, index) => {
         const dayDetails = dayLabels.find(d => d.date === date);
         acc[date] = dayDetails?.color || defaultDayColors[index % defaultDayColors.length];
@@ -524,7 +547,7 @@ function updateMarkers() {
     }, {});
 
     destinations.forEach(dest => {
-        if (dest.lat && dest.lng) {
+        if (dest.lat && dest.lng && dest.arrivalDate) {
             const dayColor = dateColorMap[dest.arrivalDate] || '#757575';
             const iconClass = categoryIcons[dest.category] || 'fa-map-marker-alt';
             
@@ -553,20 +576,9 @@ function updateMarkers() {
                 </div>
             `;
             
-            const timeHtml = dest.time ? `
-                <div class="popup-meta">
-                    <i class="fas fa-clock"></i>
-                    <span>${formatTime(dest.time)}</span>
-                </div>
-            ` : '';
-
+            const timeHtml = dest.time ? `<div class="popup-meta"><i class="fas fa-clock"></i><span>${formatTime(dest.time)}</span></div>` : '';
             const priority = dest.priority || 'medium';
-            const priorityHtml = priority !== 'assumed' ? `
-                <div class="popup-meta">
-                    <i class="fas fa-star"></i>
-                    <span style="text-transform: capitalize;">${priority} Priority</span>
-                </div>
-            ` : '';
+            const priorityHtml = priority !== 'assumed' ? `<div class="popup-meta"><i class="fas fa-star"></i><span style="text-transform: capitalize;">${priority} Priority</span></div>` : '';
 
             const popupContent = `
                 <div class="map-popup">
