@@ -154,6 +154,8 @@ function openAddModal(id = null, dataToLoad = null) {
         document.getElementById('modalCost').value = destData.cost || '';
         document.getElementById('modalTime').value = destData.time || '';
         document.getElementById('modalActivities').value = destData.activities;
+        // ADDED ADDRESS
+        document.getElementById('modalAddress').value = destData.address || '';
         document.getElementById('modalCoordinates').value = (destData.lat && destData.lng) ? `${destData.lat}, ${destData.lng}` : '';
         document.getElementById('modalWebsiteLink').value = destData.websiteLink || '';
         document.getElementById('modalGoogleMapsLink').value = destData.googleMapsLink || '';
@@ -181,6 +183,8 @@ function clearModalForm() {
     form.querySelector('#modalCost').value = '';
     form.querySelector('#modalTime').value = '';
     form.querySelector('#modalActivities').value = '';
+    // ADDED ADDRESS
+    form.querySelector('#modalAddress').value = '';
     form.querySelector('#modalCoordinates').value = '';
     form.querySelector('#modalWebsiteLink').value = '';
     form.querySelector('#modalGoogleMapsLink').value = '';
@@ -197,6 +201,8 @@ function saveDestination() {
     const cost = parseFloat(document.getElementById('modalCost').value) || 0;
     const time = parseFloat(document.getElementById('modalTime').value) || 0;
     const activities = document.getElementById('modalActivities').value;
+    // ADDED ADDRESS
+    const address = document.getElementById('modalAddress').value;
     const websiteLink = document.getElementById('modalWebsiteLink').value;
     const googleMapsLink = document.getElementById('modalGoogleMapsLink').value;
     const advisorSiteLink = document.getElementById('modalAdvisorSiteLink').value;
@@ -225,9 +231,9 @@ function saveDestination() {
             const newDeparture = new Date(originalDeparture.getTime() + diffTime);
             departureDate = formatDateForInput(newDeparture);
         }
-
+        // ADDED ADDRESS
         const destinationData = { 
-            name, arrivalDate, departureDate, category, priority, cost, time, activities, lat, lng, websiteLink, googleMapsLink, advisorSiteLink 
+            name, arrivalDate, departureDate, category, priority, cost, time, activities, address, lat, lng, websiteLink, googleMapsLink, advisorSiteLink 
         };
 
         if (currentEditingId) {
@@ -477,6 +483,8 @@ function createDestinationElement(dest, color) {
     const priority = dest.priority || 'medium';
     const priorityTagHtml = priority !== 'assumed' ? `<div class="priority-tag priority-${priority}">${priority}</div>` : '';
     const dateHtml = dest.arrivalDate ? `<div class="destination-meta"><i class="fas fa-calendar-alt"></i><span>${formatDateRange(dest.arrivalDate, dest.departureDate)}</span></div>` : '';
+    // ADDED ADDRESS
+    const addressHtml = dest.address ? `<div class="destination-meta address"><i class="fas fa-map-marker-alt"></i><span>${dest.address}</span></div>` : '';
 
     div.innerHTML = `
         <div class="destination-header">
@@ -487,6 +495,7 @@ function createDestinationElement(dest, color) {
                     ${priorityTagHtml}
                 </div>
                 ${dateHtml}
+                ${addressHtml}
                 <div class="destination-meta cost">
                     <i class="fas fa-dollar-sign"></i>
                     <span>${formatCost(dest.cost)}</span>
@@ -598,7 +607,9 @@ function updateMarkers() {
             const timeHtml = dest.time ? `<div class="popup-meta"><i class="fas fa-clock"></i><span>${formatTime(dest.time)}</span></div>` : '';
             const priority = dest.priority || 'medium';
             const priorityHtml = priority !== 'assumed' ? `<div class="popup-meta"><i class="fas fa-star"></i><span style="text-transform: capitalize;">${priority} Priority</span></div>` : '';
-
+            // ADDED ADDRESS
+            const addressHtml = dest.address ? `<div class="popup-meta"><i class="fas fa-map-marker-alt"></i><span>${dest.address}</span></div>` : '';
+            
             const popupContent = `
                 <div class="map-popup">
                     <div class="popup-header">
@@ -608,6 +619,7 @@ function updateMarkers() {
                         <h4>${dest.name}</h4>
                     </div>
                     ${priorityHtml}
+                    ${addressHtml}
                     <div class="popup-meta">
                         <i class="fas fa-calendar-alt"></i>
                         <span>${formatDateRange(dest.arrivalDate, dest.departureDate)}</span>
