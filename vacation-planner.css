@@ -295,7 +295,6 @@ body {
     margin-top: 8px;
     line-height: 1.5;
     flex-grow: 1;
-    /* ADDED: Styles for text truncation */
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -350,30 +349,13 @@ body {
 .leaflet-popup-content { margin: 0 !important; padding: 0 !important; width: 300px !important; }
 .map-popup { padding: 15px; position: relative; }
 .map-popup .popup-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.map-popup .popup-header h4 { font-size: 16px; font-weight: 600; margin: 0; line-height: 1.2; }
+.map-popup .popup-header h4 { font-size: 16px; font-weight: 600; margin: 0; line-height: 1.2; padding-right: 30px; /* Space for edit button */ }
 .map-popup .category-icon { width: 36px; height: 36px; border-radius: 6px; font-size: 16px; }
 .map-popup .popup-meta { display: flex; align-items: center; gap: 8px; color: #666; font-size: 12px; margin-bottom: 5px; }
 .map-popup .popup-meta i { font-size: 11px; width: 14px; text-align: center; color: #999; }
 .map-popup .popup-meta.cost { font-weight: 500; color: #388e3c; }
-.map-popup .popup-activities { color: #333; font-size: 13px; margin-top: 12px; line-height: 1.5; max-height: 80px; overflow-y: auto; padding-right: 5px; border-top: 1px solid #eee; padding-top: 10px; }
-.btn-edit-popup {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid #ddd;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
-    color: #555;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.btn-edit-popup:hover { background-color: #fff; color: #007bff; }
-
+.map-popup .popup-activities { color: #333; font-size: 13px; margin-top: 12px; line-height: 1.5; max-height: 80px; overflow-y: auto; padding-right: 5px; }
+.map-popup .destination-footer { padding-top: 10px; border-top: 1px solid #eee; } /* Reuse footer style */
 
 .loading { display: flex; align-items: center; justify-content: center; height: 100%; }
 .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #2196f3; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
