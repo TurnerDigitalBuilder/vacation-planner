@@ -49,18 +49,18 @@ body {
     background: white;
     box-shadow: 2px 0 8px rgba(0,0,0,0.1);
     overflow-y: auto;
-    padding: 0 25px; /* MODIFIED: This line was changed */
+    padding: 0 25px;
 }
 
-/* ADDED: Sticky container for sidebar header */
+/* Sticky container for sidebar header */
 .sidebar-sticky-content {
     position: -webkit-sticky; /* For Safari */
     position: sticky;
     top: 0;
     z-index: 2;
     background: white; /* Match sidebar background */
-    padding-top: 25px; /* ADDED: This line covers the gap */
-    padding-bottom: 1px; /* ADDED: Restores a small gap to the list */
+    padding-top: 25px;
+    padding-bottom: 1px;
 }
 
 /* Total Cost Display */
@@ -87,6 +87,7 @@ body {
     color: #1b5e20;
     line-height: 1.2;
 }
+
 
 /* Settings Controls */
 .settings-controls {
@@ -349,7 +350,7 @@ body {
 }
 
 .destination-meta { display: flex; align-items: center; gap: 8px; color: #666; font-size: 13px; margin-bottom: 5px; }
-.destination-meta i { font-size: 12px; width: 14px; text-align: center; color: #999; }
+.destination-meta i { font-size: 12px; width: 14px; text-align: center; color: inherit; } /* MODIFIED */
 .destination-meta.cost { font-weight: 500; color: #388e3c; }
 .destination-meta.time { font-weight: 500; color: #6f42c1; }
 .destination-activities { 
@@ -401,7 +402,6 @@ body {
     border-radius: 50%;
     padding: 0;
     font-size: 13px;
-    color: #888;
     background-color: transparent;
     border: none;
     box-shadow: none;
@@ -410,6 +410,13 @@ body {
 .destination-actions .btn:hover {
     transform: scale(1.1);
     background-color: #f0f0f0;
+}
+
+.destination-actions .btn-edit {
+    color: #007bff; /* ADDED */
+}
+.destination-actions .btn-danger {
+    color: #dc3545; /* ADDED */
 }
 
 .destination-actions .btn-edit:hover {
