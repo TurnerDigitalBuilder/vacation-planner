@@ -335,6 +335,8 @@ body {
 .destination-actions .btn { width: 32px; height: 32px; border-radius: 50%; padding: 0; font-size: 13px; background-color: transparent; border: none; box-shadow: none; }
 .destination-actions .btn:hover { transform: scale(1.1); background-color: #f0f0f0; }
 .destination-actions .btn-edit { color: #007bff; }
+.destination-actions .btn-duplicate { color: #555; }
+.destination-actions .btn-duplicate:hover { color: #6f42c1; background-color: #f3e5f5; }
 .destination-actions .btn-danger { color: #dc3545; }
 .destination-actions .btn-edit:hover { background-color: #e3f2fd; }
 .destination-actions .btn-danger:hover { background-color: #ffebee; }
@@ -378,6 +380,12 @@ body {
 .map-popup .popup-meta.cost { font-weight: 500; color: #388e3c; }
 .map-popup .popup-activities { color: #333; font-size: 13px; margin-top: 12px; line-height: 1.5; max-height: 80px; overflow-y: auto; padding-right: 5px; }
 .map-popup .destination-footer { padding-top: 10px; border-top: 1px solid #eee; }
+
+.unscheduled-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e0e0e0;
+}
 
 .loading { display: flex; align-items: center; justify-content: center; height: 100%; }
 .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #2196f3; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
