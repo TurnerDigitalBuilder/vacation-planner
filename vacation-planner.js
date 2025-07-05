@@ -563,6 +563,17 @@ function initializeSortable() {
     });
 }
 
+function highlightAndScrollToDestination(id) {
+    document.querySelectorAll('.destination-item').forEach(item => {
+        item.classList.remove('highlighted');
+    });
+    const destElement = document.querySelector(`.destination-item[data-id='${id}']`);
+    if (destElement) {
+        destElement.classList.add('highlighted');
+        destElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
 function zoomToDestination(id) {
     const dest = destinations.find(d => d.id === id);
     if (!dest || !dest.lat || !dest.lng) {
@@ -571,6 +582,8 @@ function zoomToDestination(id) {
     }
 
     map.flyTo([dest.lat, dest.lng], 15);
+
+    highlightAndScrollToDestination(id);
 
     const markerToOpen = markers.find(marker => marker.destinationId === id);
     if (markerToOpen) {
@@ -655,6 +668,10 @@ function updateMarkers() {
                 .addTo(map)
                 .bindPopup(popupContent)
                 .bindTooltip(dest.name);
+
+            marker.on('click', () => {
+                highlightAndScrollToDestination(dest.id);
+            });
             
             marker.destinationDate = dest.arrivalDate;
             marker.destinationId = dest.id;
