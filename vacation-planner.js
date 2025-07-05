@@ -536,6 +536,7 @@ function updateMarkers() {
 
             const popupContent = `
                 <div class="map-popup">
+                    <button class="btn btn-edit-popup" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
                     <div class="popup-header">
                         <div class="category-icon" style="background-color: ${dayColor}">
                             <i class="fas ${iconClass}"></i>
