@@ -132,6 +132,12 @@ function initializeMap() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
+
+    map.on('popupclose', function(e) {
+        document.querySelectorAll('.destination-item').forEach(item => {
+            item.classList.remove('highlighted');
+        });
+    });
 }
 
 // --- MODAL AND DATA HANDLING ---
