@@ -71,6 +71,35 @@ function formatCost(number) {
     return Math.round(number).toLocaleString('en-US');
 }
 
+// --- DATA PERSISTENCE ---
+
+// Save the current itinerary to localStorage
+function saveDataToCache() {
+    localStorage.setItem('vacationData', JSON.stringify(destinations));
+}
+
+// Load data from localStorage
+function loadInitialData() {
+    const cachedData = localStorage.getItem('vacationData');
+    if (cachedData) {
+        try {
+            destinations = JSON.parse(cachedData);
+            console.log('Loaded data from cache.');
+        } catch (e) {
+            console.error("Error parsing cached data:", e);
+            // If cache is corrupted, clear it and start empty
+            destinations = [];
+            localStorage.removeItem('vacationData');
+        }
+    } else {
+        // If no cache, start with an empty itinerary
+        destinations = [];
+        console.log('No cached data found, starting with empty itinerary.');
+    }
+    // Render whatever data we have (cached or empty)
+    renderAll();
+}
+
 
 // --- INITIALIZATION ---
 
@@ -82,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const departureDateInput = document.getElementById('modalDepartureDate');
 
     initializeMap();
-    checkForInitialData();
+    loadInitialData(); // This now handles both cache and empty start
     
     showAllBtn.addEventListener('click', showAllDays);
     autoZoomToggle.addEventListener('change', (e) => {
@@ -114,27 +143,6 @@ function initializeMap() {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 }
-
-// Check for initial data
-function checkForInitialData() {
-    fetch('iceland-itinerary.json')
-        .then(response => {
-            if (response.ok) return response.json();
-            throw new Error('JSON file not found');
-        })
-        .then(data => {
-            if (Array.isArray(data)) {
-                destinations = data;
-                renderDestinations();
-                updateMarkers();
-            }
-        })
-        .catch(error => {
-            console.log('No initial JSON file found, starting with empty itinerary');
-            renderDestinations();
-        });
-}
-
 
 // --- MODAL AND DATA HANDLING ---
 
@@ -223,8 +231,7 @@ function saveDestination() {
             destinations.push({ ...destinationData, id: Date.now() });
         }
         
-        renderDestinations();
-        updateMarkers();
+        renderAll();
         closeModal();
     } else {
         alert('Please fill in at least the destination name and dates.');
@@ -235,13 +242,19 @@ function saveDestination() {
 function deleteDestination(id) {
     if (confirm('Are you sure you want to delete this destination?')) {
         destinations = destinations.filter(d => d.id !== id);
-        renderDestinations();
-        updateMarkers();
+        renderAll();
     }
 }
 
 
 // --- UI RENDERING ---
+
+// A single function to render everything and save to cache
+function renderAll() {
+    renderDestinations();
+    updateMarkers();
+    saveDataToCache();
+}
 
 // Render destinations list
 function renderDestinations() {
@@ -481,8 +494,7 @@ function importFromJSON(event) {
                 const data = JSON.parse(e.target.result);
                 if (Array.isArray(data)) {
                     destinations = data;
-                    renderDestinations();
-                    updateMarkers();
+                    renderAll();
                 } else {
                     alert('Invalid JSON file. The file must contain an array of destinations.');
                 }
