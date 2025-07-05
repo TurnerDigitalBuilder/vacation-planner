@@ -152,6 +152,23 @@ function openAddModal(id = null) {
             document.getElementById('modalGoogleMapsLink').value = dest.googleMapsLink || '';
             document.getElementById('modalAdvisorSiteLink').value = dest.advisorSiteLink || '';
         }
+    } else {
+        currentEditingId = null;
+
+        // ** MODIFIED: Default to the earliest date if destinations exist **
+        if (destinations.length > 0) {
+            const earliestDate = destinations
+                .map(d => d.arrivalDate)
+                .sort((a, b) => new Date(a) - new Date(b))[0];
+            
+            if (earliestDate) {
+                const arrivalInput = document.getElementById('modalArrivalDate');
+                const departureInput = document.getElementById('modalDepartureDate');
+                arrivalInput.value = earliestDate;
+                departureInput.value = earliestDate;
+                departureInput.min = earliestDate;
+            }
+        }
     }
     modal.style.display = 'block';
 }
@@ -583,7 +600,7 @@ function exportToJSON() {
     a.href = url;
     a.download = `vacation-itinerary-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
-a.click();
+    a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
