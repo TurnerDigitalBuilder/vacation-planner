@@ -396,6 +396,7 @@ function renderDestinations() {
             const iconClass = categoryIcons[dest.category] || 'fa-map-pin';
             const categoryIconHtml = `<div class="category-icon" style="background-color: ${dayColor}"><i class="fas ${iconClass}"></i></div>`;
 
+            // MODIFIED: Restructured the actions and links
             const actionsHtml = `
                 <div class="destination-actions">
                     <div class="destination-links">
@@ -403,7 +404,7 @@ function renderDestinations() {
                         ${dest.googleMapsLink ? `<a href="${dest.googleMapsLink}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i></a>` : ''}
                         ${dest.advisorSiteLink ? `<a href="${dest.advisorSiteLink}" target="_blank" title="Visit Advisor Site"><i class="fas fa-user-tie"></i></a>` : ''}
                     </div>
-                    <div>
+                    <div class="crud-actions">
                         <button class="btn btn-edit" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-danger" onclick="deleteDestination(${dest.id})"><i class="fas fa-trash-alt"></i></button>
                     </div>
@@ -515,11 +516,20 @@ function updateMarkers() {
                 iconAnchor: [16, 32]
             });
 
-            const linksHtml = `
-                <div class="destination-links">
-                    ${dest.websiteLink ? `<a href="${dest.websiteLink}" target="_blank" title="Visit Website"><i class="fas fa-link"></i> Website</a>` : ''}
-                    ${dest.googleMapsLink ? `<a href="${dest.googleMapsLink}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i> Map</a>` : ''}
-                    ${dest.advisorSiteLink ? `<a href="${dest.advisorSiteLink}" target="_blank" title="Visit Advisor Site"><i class="fas fa-user-tie"></i> Advisor</a>` : ''}
+            // MODIFIED: Restructured the actions and links for the popup
+            const footerHtml = `
+                <div class="destination-footer">
+                    <div class="destination-actions">
+                        <div class="destination-links">
+                            ${dest.websiteLink ? `<a href="${dest.websiteLink}" target="_blank" title="Visit Website"><i class="fas fa-link"></i></a>` : ''}
+                            ${dest.googleMapsLink ? `<a href="${dest.googleMapsLink}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i></a>` : ''}
+                            ${dest.advisorSiteLink ? `<a href="${dest.advisorSiteLink}" target="_blank" title="Visit Advisor Site"><i class="fas fa-user-tie"></i></a>` : ''}
+                        </div>
+                        <div class="crud-actions">
+                            <button class="btn btn-edit" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" onclick="deleteDestination(${dest.id})"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
                 </div>
             `;
             
@@ -534,7 +544,6 @@ function updateMarkers() {
 
             const popupContent = `
                 <div class="map-popup">
-                    <button class="btn btn-edit-popup" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
                     <div class="popup-header">
                         <div class="category-icon" style="background-color: ${dayColor}">
                             <i class="fas ${iconClass}"></i>
@@ -557,7 +566,7 @@ function updateMarkers() {
                     <div class="popup-activities">
                         ${dest.activities || 'No additional notes.'}
                     </div>
-                    ${linksHtml}
+                    ${footerHtml}
                 </div>
             `;
             
