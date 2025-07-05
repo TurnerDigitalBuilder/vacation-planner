@@ -378,6 +378,21 @@ function shiftAllDates() {
     closeShiftDatesModal();
 }
 
+function toggleDayCollapse(button) {
+    const dayGroup = button.closest('.day-group');
+    if (dayGroup) {
+        dayGroup.classList.toggle('collapsed');
+        const icon = button.querySelector('i');
+        if (dayGroup.classList.contains('collapsed')) {
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        } else {
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        }
+    }
+}
+
 // --- UI RENDERING ---
 
 function renderAll() {
