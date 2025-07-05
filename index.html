@@ -5,32 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vacation Planner</title>
     
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="vacation-planner.css">
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header class="header">
             <h1>Vacation Planner</h1>
         </header>
 
         <div class="main-content">
-            <!-- Left Panel - Itinerary -->
             <div class="sidebar">
-                <!-- Total Cost Display -->
                 <div class="total-cost-container">
                     <h4>Total Estimated Cost</h4>
                     <p id="totalCostDisplay">$0</p>
                 </div>
 
-                <!-- Settings -->
                 <div class="settings-controls">
                     <div class="toggle-switch">
                         <label for="autoZoomToggle">Auto-Zoom Map</label>
@@ -58,7 +51,6 @@
                     </div>
                 </div>
 
-                <!-- Destinations List -->
                 <div id="destinationsList" class="destinations-list">
                     <div class="empty-state">
                         <i class="fas fa-map-marked-alt"></i>
@@ -67,7 +59,6 @@
                 </div>
             </div>
 
-            <!-- Right Panel - Map -->
             <div class="map-container">
                 <div id="map"></div>
                 <div class="map-legend">
@@ -79,7 +70,6 @@
         </div>
     </div>
 
-    <!-- Modal for Add/Edit Destination -->
     <div id="destinationModal" class="modal">
         <div class="modal-content">
             <div class="modal-body">
@@ -116,6 +106,10 @@
                         <label for="modalCost">Estimated Cost ($)</label>
                         <input type="number" id="modalCost" step="1" placeholder="e.g., 50">
                     </div>
+                     <div class="form-group">
+                        <label for="modalTime">Time (hours)</label>
+                        <input type="number" id="modalTime" step="0.5" placeholder="e.g., 2.5">
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -150,10 +144,8 @@
         </div>
     </div>
 
-    <!-- Leaflet JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     
-    <!-- Custom JS -->
     <script src="vacation-planner.js"></script>
 </body>
 </html>
