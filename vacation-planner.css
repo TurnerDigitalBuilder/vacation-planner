@@ -54,11 +54,11 @@ body {
 
 /* Sticky container for sidebar header */
 .sidebar-sticky-content {
-    position: -webkit-sticky; /* For Safari */
+    position: -webkit-sticky;
     position: sticky;
     top: 0;
     z-index: 2;
-    background: white; /* Match sidebar background */
+    background: white;
     padding-top: 25px;
     padding-bottom: 1px;
 }
@@ -291,14 +291,24 @@ body {
     position: relative;
     background: rgba(255, 255, 255, 0.7);
     transition: all 0.2s ease-in-out;
+    cursor: grab;
 }
-.day-group .destination-item:last-child {
+.destination-item:last-child {
     margin-bottom: 0;
 }
 .destination-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     border-color: #afafaf;
+}
+.destination-item:active {
+    cursor: grabbing;
+}
+
+/* Styles for drag-and-drop placeholder */
+.sortable-ghost {
+    opacity: 0.4;
+    background: #e3f2fd;
 }
 
 .destination-header { display: flex; align-items: flex-start; gap: 15px; }
@@ -350,7 +360,7 @@ body {
 }
 
 .destination-meta { display: flex; align-items: center; gap: 8px; color: #666; font-size: 13px; margin-bottom: 5px; }
-.destination-meta i { font-size: 12px; width: 14px; text-align: center; color: inherit; } /* MODIFIED */
+.destination-meta i { font-size: 12px; width: 14px; text-align: center; color: inherit; }
 .destination-meta.cost { font-weight: 500; color: #388e3c; }
 .destination-meta.time { font-weight: 500; color: #6f42c1; }
 .destination-activities { 
@@ -413,10 +423,10 @@ body {
 }
 
 .destination-actions .btn-edit {
-    color: #007bff; /* ADDED */
+    color: #007bff;
 }
 .destination-actions .btn-danger {
-    color: #dc3545; /* ADDED */
+    color: #dc3545;
 }
 
 .destination-actions .btn-edit:hover {
@@ -535,7 +545,7 @@ body {
 .leaflet-popup-content {
     margin: 0 !important;
     padding: 0 !important;
-    width: 260px !important; /* Set a fixed width */
+    width: 260px !important;
 }
 
 .map-popup {
@@ -591,7 +601,7 @@ body {
     line-height: 1.5;
     max-height: 80px;
     overflow-y: auto;
-    padding-right: 5px; /* for scrollbar */
+    padding-right: 5px;
     border-top: 1px solid #eee;
     padding-top: 10px;
 }
@@ -608,10 +618,10 @@ body {
     .sidebar { width: 100%; max-height: 50vh; min-width: unset;}
     .map-container { height: 50vh; }
     .modal-content {
-        margin: 40px auto; /* Centered with more top margin */
-        width: 90%; /* A bit of padding on the sides */
-        max-width: 550px; /* Consistent max-width */
-        max-height: calc(100vh - 80px); /* Ensure it fits vertically */
+        margin: 40px auto;
+        width: 90%;
+        max-width: 550px;
+        max-height: calc(100vh - 80px);
     }
     .form-row { flex-direction: column; gap: 0; }
 }
