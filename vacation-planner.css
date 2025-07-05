@@ -306,7 +306,17 @@ body {
 .priority-low { background-color: #4caf50; }
 .priority-optional { background-color: #9e9e9e; }
 
-.category-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; color: #fff; }
+const categoryIcons = {
+    accommodation: 'fa-hotel',
+    activity: 'fa-person-hiking',
+    food: 'fa-utensils',
+    fly: 'fa-plane-departure',
+    drive: 'fa-car',
+    photo: 'fa-camera',
+    shopping: 'fa-shopping-bag',
+    entertainment: 'fa-film',
+    other: 'fa-map-pin'
+};
 .destination-content { flex: 1; display: flex; flex-direction: column; }
 .destination-meta { display: flex; align-items: center; gap: 8px; color: #666; font-size: 13px; margin-bottom: 5px; }
 .destination-meta i { font-size: 12px; width: 14px; text-align: center; color: inherit; }
