@@ -19,7 +19,6 @@
         <!-- Header -->
         <header class="header">
             <h1>Vacation Planner</h1>
-            <p>Plan your perfect trip with an interactive map and itinerary</p>
         </header>
 
         <div class="main-content">
@@ -43,13 +42,13 @@
                 <div class="sidebar-header">
                     <h3>Itinerary</h3>
                     <div class="icon-actions">
-                        <button class="icon-btn" onclick="openAddModal()" data-tooltip="Add Destination">
+                        <button class="icon-btn add" onclick="openAddModal()" data-tooltip="Add Destination">
                             <i class="fas fa-plus"></i>
                         </button>
-                        <button class="icon-btn" onclick="exportToJSON()" data-tooltip="Export JSON">
+                        <button class="icon-btn export" onclick="exportToJSON()" data-tooltip="Export JSON">
                             <i class="fas fa-download"></i>
                         </button>
-                        <button class="icon-btn" onclick="document.getElementById('fileInput').click()" data-tooltip="Import JSON">
+                        <button class="icon-btn import" onclick="document.getElementById('fileInput').click()" data-tooltip="Import JSON">
                             <i class="fas fa-upload"></i>
                         </button>
                         <input type="file" id="fileInput" accept=".json" onchange="importFromJSON(event)" style="display: none;">
