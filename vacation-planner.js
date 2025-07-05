@@ -198,6 +198,12 @@ function clearModalForm() {
     form.querySelector('#modalDepartureDate').min = '';
 }
 
+function unscheduleDestination() {
+    document.getElementById('modalArrivalDate').value = '';
+    document.getElementById('modalDepartureDate').value = '';
+    saveDestination();
+}
+
 function saveDestination() {
     const name = document.getElementById('modalDestName').value;
     let arrivalDate = document.getElementById('modalArrivalDate').value;
