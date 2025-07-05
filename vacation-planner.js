@@ -43,7 +43,7 @@ function hexToRgba(hex, alpha = 1) {
 // Helper function to format date strings to MM/DD/YYYY
 function formatDate(dateString) {
     if (!dateString || dateString.length < 10) {
-        return dateString; // Return original if invalid or not in YYYY-MM-DD format
+        return dateString; // Return original if invalid or not in<x_bin_342>-MM-DD format
     }
     // Split date to avoid timezone issues that can change the date
     const parts = dateString.split('-');
@@ -164,6 +164,7 @@ function openAddModal(id = null) {
             document.getElementById('modalArrivalDate').value = dest.arrivalDate;
             document.getElementById('modalDepartureDate').value = dest.departureDate;
             document.getElementById('modalCategory').value = dest.category || 'activity';
+            document.getElementById('modalPriority').value = dest.priority || 'medium';
             document.getElementById('modalCost').value = dest.cost || '';
             document.getElementById('modalTime').value = dest.time || '';
             document.getElementById('modalActivities').value = dest.activities;
@@ -190,6 +191,7 @@ function clearModalForm() {
     form.querySelector('#modalArrivalDate').value = '';
     form.querySelector('#modalDepartureDate').value = '';
     form.querySelector('#modalCategory').value = 'activity';
+    form.querySelector('#modalPriority').value = 'medium';
     form.querySelector('#modalCost').value = '';
     form.querySelector('#modalTime').value = '';
     form.querySelector('#modalActivities').value = '';
@@ -206,6 +208,7 @@ function saveDestination() {
     const arrivalDate = document.getElementById('modalArrivalDate').value;
     const departureDate = document.getElementById('modalDepartureDate').value;
     const category = document.getElementById('modalCategory').value;
+    const priority = document.getElementById('modalPriority').value;
     const cost = parseFloat(document.getElementById('modalCost').value) || 0;
     const time = parseFloat(document.getElementById('modalTime').value) || 0;
     const activities = document.getElementById('modalActivities').value;
@@ -227,7 +230,7 @@ function saveDestination() {
 
     if (name && arrivalDate && departureDate) {
         const destinationData = { 
-            name, arrivalDate, departureDate, category, cost, time, activities, lat, lng, websiteUrl, googleMapsUrl 
+            name, arrivalDate, departureDate, category, priority, cost, time, activities, lat, lng, websiteUrl, googleMapsUrl 
         };
 
         if (currentEditingId) {
@@ -342,11 +345,17 @@ function renderDestinations() {
                 </div>
             ` : '';
 
+            const priority = dest.priority || 'medium';
+            const priorityTagHtml = `<div class="priority-tag priority-${priority}">${priority}</div>`;
+
             div.innerHTML = `
                 <div class="destination-header">
                     ${categoryIconHtml}
                     <div class="destination-content">
-                        <h4>${dest.name}</h4>
+                        <div class="destination-title">
+                            <h4>${dest.name}</h4>
+                            ${priorityTagHtml}
+                        </div>
                         <div class="destination-meta">
                             <i class="fas fa-calendar-alt"></i>
                             <span>${formatDateRange(dest.arrivalDate, dest.departureDate)}</span>
@@ -368,7 +377,7 @@ function renderDestinations() {
         });
 
         const totalTimeHtml = dayTotalTime > 0 ? `<div class="day-total-time">${formatTime(dayTotalTime)}</div>` : '';
-        daySeparator.innerHTML = `<span>Day ${dayCounter + 1} &middot; ${formatDate(date)}</span> ${totalTimeHtml}`;
+        daySeparator.innerHTML = `<span>Day ${dayCounter + 1} · ${formatDate(date)}</span> ${totalTimeHtml}`;
         dayGroup.insertBefore(daySeparator, dayGroup.firstChild);
 
         container.appendChild(dayGroup);
@@ -417,6 +426,8 @@ function updateMarkers() {
                 </div>
             ` : '';
 
+            const priority = dest.priority || 'medium';
+
             // Create the popup content
             const popupContent = `
                 <div class="map-popup">
@@ -425,6 +436,10 @@ function updateMarkers() {
                             <i class="fas ${iconClass}"></i>
                         </div>
                         <h4>${dest.name}</h4>
+                    </div>
+                     <div class="popup-meta">
+                        <i class="fas fa-star"></i>
+                        <span style="text-transform: capitalize;">${priority} Priority</span>
                     </div>
                     <div class="popup-meta">
                         <i class="fas fa-calendar-alt"></i>
