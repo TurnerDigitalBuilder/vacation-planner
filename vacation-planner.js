@@ -4,8 +4,8 @@ let markers = [];
 let destinations = [];
 let editingId = null;
 let currentEditingId = null; // For modal editing
-let showAllBtn;
 let autoZoomEnabled = true;
+let currentFilteredDate = null;
 
 // Category to Font Awesome icon mapping
 const categoryIcons = {
@@ -43,7 +43,7 @@ function hexToRgba(hex, alpha = 1) {
 // Helper function to format date strings to MM/DD/YYYY
 function formatDate(dateString) {
     if (!dateString || dateString.length < 10) {
-        return dateString; // Return original if invalid or not in yyyy-MM-dd format
+        return dateString; // Return original if invalid or not in YYYY-MM-DD format
     }
     // Split date to avoid timezone issues that can change the date
     const parts = dateString.split('-');
@@ -105,7 +105,6 @@ function loadInitialData() {
 
 // Initialize map when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    showAllBtn = document.getElementById('showAllBtn');
     const autoZoomToggle = document.getElementById('autoZoomToggle');
     const arrivalDateInput = document.getElementById('modalArrivalDate');
     const departureDateInput = document.getElementById('modalDepartureDate');
@@ -113,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMap();
     loadInitialData(); // This now handles both cache and empty start
     
-    showAllBtn.addEventListener('click', showAllDays);
     autoZoomToggle.addEventListener('change', (e) => {
         autoZoomEnabled = e.target.checked;
     });
@@ -416,6 +414,13 @@ function updateMarkers() {
 
 // Filter map markers by a specific day
 function filterByDay(date) {
+    // If the clicked day is already filtered, show all days
+    if (date === currentFilteredDate) {
+        showAllDays();
+        return;
+    }
+
+    currentFilteredDate = date;
     const visibleMarkers = [];
     markers.forEach(marker => {
         if (marker.destinationDate === date) {
@@ -438,12 +443,11 @@ function filterByDay(date) {
         const group = L.featureGroup(visibleMarkers);
         map.fitBounds(group.getBounds().pad(0.2));
     }
-
-    showAllBtn.style.display = 'inline-flex';
 }
 
 // Show all markers and reset filters
 function showAllDays() {
+    currentFilteredDate = null;
     const allVisibleMarkers = [];
     markers.forEach(marker => {
         marker.addTo(map);
@@ -458,8 +462,6 @@ function showAllDays() {
         const group = L.featureGroup(allVisibleMarkers);
         map.fitBounds(group.getBounds().pad(0.2));
     }
-
-    showAllBtn.style.display = 'none';
 }
 
 
