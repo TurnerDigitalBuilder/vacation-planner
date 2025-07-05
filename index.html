@@ -15,12 +15,15 @@
 <body>
     <div class="container">
         <header class="header">
+            <button id="toggleSidebarHeaderBtn" class="header-btn" data-tooltip="Toggle Plan Controls">
+                <i class="fas fa-bars"></i>
+            </button>
             <h1>Vacation Planner</h1>
         </header>
 
         <div class="main-content">
             <div class="sidebar">
-                <div class="sidebar-sticky-content">
+                <div id="collapsibleSidebarContent" class="sidebar-sticky-content">
                     <div class="total-cost-container">
                         <h4>Total Estimated Cost</h4>
                         <p id="totalCostDisplay">$0</p>
@@ -67,11 +70,6 @@
 
             <div class="map-container">
                 <div id="map"></div>
-                <div class="map-legend">
-                    <h4>Map Legend</h4>
-                    <p>🎨 Pin colors represent different days</p>
-                    <p>📝 Click markers for details</p>
-                </div>
             </div>
         </div>
     </div>
