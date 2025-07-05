@@ -396,18 +396,17 @@ function renderDestinations() {
             const iconClass = categoryIcons[dest.category] || 'fa-map-pin';
             const categoryIconHtml = `<div class="category-icon" style="background-color: ${dayColor}"><i class="fas ${iconClass}"></i></div>`;
 
-            const linksHtml = `
-                <div class="destination-links">
-                    ${dest.websiteLink ? `<a href="${dest.websiteLink}" target="_blank" title="Visit Website"><i class="fas fa-link"></i></a>` : ''}
-                    ${dest.googleMapsLink ? `<a href="${dest.googleMapsLink}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i></a>` : ''}
-                    ${dest.advisorSiteLink ? `<a href="${dest.advisorSiteLink}" target="_blank" title="Visit Advisor Site"><i class="fas fa-user-tie"></i></a>` : ''}
-                </div>
-            `;
-            
             const actionsHtml = `
                 <div class="destination-actions">
-                    <button class="btn btn-edit" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-danger" onclick="deleteDestination(${dest.id})"><i class="fas fa-trash-alt"></i></button>
+                    <div class="destination-links">
+                        ${dest.websiteLink ? `<a href="${dest.websiteLink}" target="_blank" title="Visit Website"><i class="fas fa-link"></i></a>` : ''}
+                        ${dest.googleMapsLink ? `<a href="${dest.googleMapsLink}" target="_blank" title="Open in Google Maps"><i class="fas fa-map-location-dot"></i></a>` : ''}
+                        ${dest.advisorSiteLink ? `<a href="${dest.advisorSiteLink}" target="_blank" title="Visit Advisor Site"><i class="fas fa-user-tie"></i></a>` : ''}
+                    </div>
+                    <div>
+                        <button class="btn btn-edit" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger" onclick="deleteDestination(${dest.id})"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </div>
             `;
             
@@ -440,7 +439,6 @@ function renderDestinations() {
                         ${timeHtml}
                         <div class="destination-activities">${dest.activities || ''}</div>
                          <div class="destination-footer">
-                            ${linksHtml}
                             ${actionsHtml}
                         </div>
                     </div>
