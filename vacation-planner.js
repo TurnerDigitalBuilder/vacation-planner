@@ -154,7 +154,6 @@ function openAddModal(id = null, dataToLoad = null) {
         document.getElementById('modalCost').value = destData.cost || '';
         document.getElementById('modalTime').value = destData.time || '';
         document.getElementById('modalActivities').value = destData.activities;
-        // ADDED ADDRESS
         document.getElementById('modalAddress').value = destData.address || '';
         document.getElementById('modalCoordinates').value = (destData.lat && destData.lng) ? `${destData.lat}, ${destData.lng}` : '';
         document.getElementById('modalWebsiteLink').value = destData.websiteLink || '';
@@ -162,6 +161,13 @@ function openAddModal(id = null, dataToLoad = null) {
         document.getElementById('modalAdvisorSiteLink').value = destData.advisorSiteLink || '';
     } else {
         currentEditingId = null; 
+        
+        const datedDestinations = destinations.filter(d => d.arrivalDate);
+        if (datedDestinations.length > 0) {
+            const earliestDate = datedDestinations.map(d => d.arrivalDate).sort((a, b) => new Date(a) - new Date(b))[0];
+            document.getElementById('modalArrivalDate').value = earliestDate;
+            document.getElementById('modalDepartureDate').min = earliestDate;
+        }
     }
     modal.style.display = 'block';
 }
