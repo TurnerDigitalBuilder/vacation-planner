@@ -13,7 +13,8 @@ const categoryIcons = {
     accommodation: 'fa-hotel',
     activity: 'fa-person-hiking',
     food: 'fa-utensils',
-    transportation: 'fa-plane-departure',
+    fly: 'fa-plane-departure',
+    drive: 'fa-car',
     shopping: 'fa-shopping-bag',
     entertainment: 'fa-film',
     other: 'fa-map-pin'
@@ -154,13 +155,8 @@ function openAddModal(id = null) {
         }
     } else {
         currentEditingId = null;
-
-        // ** MODIFIED: Default to the earliest date if destinations exist **
         if (destinations.length > 0) {
-            const earliestDate = destinations
-                .map(d => d.arrivalDate)
-                .sort((a, b) => new Date(a) - new Date(b))[0];
-            
+            const earliestDate = destinations.map(d => d.arrivalDate).sort((a, b) => new Date(a) - new Date(b))[0];
             if (earliestDate) {
                 const arrivalInput = document.getElementById('modalArrivalDate');
                 const departureInput = document.getElementById('modalDepartureDate');
