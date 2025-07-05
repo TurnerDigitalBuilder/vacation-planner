@@ -147,6 +147,7 @@ function initializeMap() {
 // Modal functions
 function openAddModal(id = null) {
     const modal = document.getElementById('destinationModal');
+    clearModalForm(); // Clear the form first
     
     if (id) {
         currentEditingId = id;
@@ -164,7 +165,6 @@ function openAddModal(id = null) {
         }
     } else {
         currentEditingId = null;
-        clearModalForm();
     }
     
     modal.style.display = 'block';
