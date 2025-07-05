@@ -76,6 +76,7 @@
         </div>
     </div>
 
+    <!-- Destination Modal -->
     <div id="destinationModal" class="modal">
         <div class="modal-content">
             <div class="modal-body">
@@ -167,8 +168,33 @@
         </div>
     </div>
 
+    <!-- Day Edit Modal -->
+    <div id="dayEditModal" class="modal">
+        <div class="modal-content" style="width: 400px;">
+            <div class="modal-body">
+                <h3 class="modal-title">Edit Day Details</h3>
+                <input type="hidden" id="dayEditDate">
+                <div class="form-group">
+                    <label for="dayLabelInput">Day Title</label>
+                    <input type="text" id="dayLabelInput" placeholder="e.g., Arrival & Exploration">
+                </div>
+                <div class="form-group">
+                    <label for="dayColorInput">Day Color</label>
+                    <input type="color" id="dayColorInput" class="color-input">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeDayEditModal()" class="btn btn-cancel">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button onclick="saveDayDetails()" class="btn btn-save">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-    
     <script src="vacation-planner.js"></script>
 </body>
 </html>
