@@ -198,7 +198,6 @@ function clearModalForm() {
     form.querySelector('#modalCost').value = '';
     form.querySelector('#modalTime').value = '';
     form.querySelector('#modalActivities').value = '';
-    // ADDED ADDRESS
     form.querySelector('#modalAddress').value = '';
     form.querySelector('#modalCoordinates').value = '';
     form.querySelector('#modalWebsiteLink').value = '';
@@ -222,7 +221,6 @@ function saveDestination() {
     const cost = parseFloat(document.getElementById('modalCost').value) || 0;
     const time = parseFloat(document.getElementById('modalTime').value) || 0;
     const activities = document.getElementById('modalActivities').value;
-    // ADDED ADDRESS
     const address = document.getElementById('modalAddress').value;
     const websiteLink = document.getElementById('modalWebsiteLink').value;
     const googleMapsLink = document.getElementById('modalGoogleMapsLink').value;
@@ -252,7 +250,6 @@ function saveDestination() {
             const newDeparture = new Date(originalDeparture.getTime() + diffTime);
             departureDate = formatDateForInput(newDeparture);
         }
-        // ADDED ADDRESS
         const destinationData = { 
             name, arrivalDate, departureDate, category, priority, cost, time, activities, address, lat, lng, websiteLink, googleMapsLink, advisorSiteLink 
         };
@@ -393,6 +390,21 @@ function toggleDayCollapse(button) {
     }
 }
 
+function toggleAllDays(collapse) {
+    document.querySelectorAll('.day-group:not(.unscheduled)').forEach(dayGroup => {
+        const button = dayGroup.querySelector('.btn-toggle-day');
+        if (collapse) {
+            dayGroup.classList.add('collapsed');
+            button.querySelector('i').classList.remove('fa-chevron-up');
+            button.querySelector('i').classList.add('fa-chevron-down');
+        } else {
+            dayGroup.classList.remove('collapsed');
+            button.querySelector('i').classList.remove('fa-chevron-down');
+            button.querySelector('i').classList.add('fa-chevron-up');
+        }
+    });
+}
+
 // --- UI RENDERING ---
 
 function renderAll() {
@@ -412,7 +424,7 @@ function renderDestinations() {
         document.getElementById('totalCostDisplay').textContent = '$0';
         return;
     }
-
+    
     const datedDestinations = destinations.filter(d => d.arrivalDate);
     const undatedDestinations = destinations.filter(d => !d.arrivalDate);
 
@@ -430,7 +442,7 @@ function renderDestinations() {
     for (const date of sortedDates) {
         const dayDetails = dayLabels.find(d => d.date === date);
         const dayColor = dayDetails?.color || defaultDayColors[dayCounter % defaultDayColors.length];
-
+        
         const dayGroup = document.createElement('div');
         dayGroup.className = 'day-group';
         dayGroup.style.backgroundColor = hexToRgba(dayColor, 0.05);
@@ -440,16 +452,30 @@ function renderDestinations() {
         const daySeparator = document.createElement('div');
         daySeparator.className = 'day-separator';
         daySeparator.style.color = dayColor;
-
+        
         const dayLabelText = dayDetails?.label || 'Add a title for this day...';
-
+        
         let dayTotalTime = 0;
+        const categoryCounts = {};
+        
         groupedByDate[date].forEach(dest => {
             totalCost += dest.cost;
             dayTotalTime += dest.time || 0;
+            
+            if (dest.category) {
+                categoryCounts[dest.category] = (categoryCounts[dest.category] || 0) + 1;
+            }
+
             const div = createDestinationElement(dest, dayColor);
             dayGroup.appendChild(div);
         });
+
+        let previewHtml = '';
+        for (const category in categoryCounts) {
+            const iconClass = categoryIcons[category] || 'fa-map-pin';
+            const count = categoryCounts[category];
+            previewHtml += `<div class="preview-icon" style="background-color: ${dayColor}" title="${category}"><i class="fas ${iconClass}"></i><span>${count}</span></div>`;
+        }
 
         const totalTimeHtml = dayTotalTime > 0 ? `<div class="day-total-time">${formatTime(dayTotalTime)}</div>` : '';
         daySeparator.innerHTML = `
@@ -464,6 +490,7 @@ function renderDestinations() {
                 <span class="day-label">${dayLabelText}</span>
                 <button class="btn btn-edit-day" onclick="openDayEditModal('${date}')"><i class="fas fa-pencil-alt"></i></button>
             </div>
+            <div class="day-preview">${previewHtml}</div>
         `;
 
         datedContainer.appendChild(dayGroup);
@@ -478,7 +505,7 @@ function renderDestinations() {
         const unscheduledGroup = document.createElement('div');
         unscheduledGroup.className = 'day-group unscheduled';
         unscheduledGroup.dataset.date = '';
-
+        
         undatedDestinations.forEach(dest => {
             totalCost += dest.cost;
             const div = createDestinationElement(dest, '#757575');
@@ -522,7 +549,6 @@ function createDestinationElement(dest, color) {
     const priority = dest.priority || 'medium';
     const priorityTagHtml = priority !== 'assumed' ? `<div class="priority-tag priority-${priority}">${priority}</div>` : '';
     const dateHtml = dest.arrivalDate ? `<div class="destination-meta"><i class="fas fa-calendar-alt"></i><span>${formatDateRange(dest.arrivalDate, dest.departureDate)}</span></div>` : '';
-    // ADDED ADDRESS
     const addressHtml = dest.address ? `<div class="destination-meta address"><i class="fas fa-map-marker-alt"></i><span>${dest.address}</span></div>` : '';
 
     div.innerHTML = `
@@ -606,7 +632,6 @@ function zoomToDestination(id) {
     }
 
     map.flyTo([dest.lat, dest.lng], 15);
-
     highlightAndScrollToDestination(id);
 
     const markerToOpen = markers.find(marker => marker.destinationId === id);
@@ -659,7 +684,6 @@ function updateMarkers() {
             const timeHtml = dest.time ? `<div class="popup-meta"><i class="fas fa-clock"></i><span>${formatTime(dest.time)}</span></div>` : '';
             const priority = dest.priority || 'medium';
             const priorityHtml = priority !== 'assumed' ? `<div class="popup-meta"><i class="fas fa-star"></i><span style="text-transform: capitalize;">${priority} Priority</span></div>` : '';
-            // ADDED ADDRESS
             const addressHtml = dest.address ? `<div class="popup-meta"><i class="fas fa-map-marker-alt"></i><span>${dest.address}</span></div>` : '';
             
             const popupContent = `
