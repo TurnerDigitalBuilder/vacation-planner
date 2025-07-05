@@ -137,28 +137,31 @@ function initializeMap() {
 
 // --- MODAL AND DATA HANDLING ---
 
-function openAddModal(id = null) {
+function openAddModal(id = null, dataToLoad = null) {
     const modal = document.getElementById('destinationModal');
     clearModalForm();
     
-    if (id) {
-        currentEditingId = id;
-        const dest = destinations.find(d => d.id === id);
-        if (dest) {
-            originalArrivalDateForEdit = dest.arrivalDate;
-            document.getElementById('modalDestName').value = dest.name;
-            document.getElementById('modalArrivalDate').value = dest.arrivalDate;
-            document.getElementById('modalDepartureDate').value = dest.departureDate;
-            document.getElementById('modalCategory').value = dest.category || 'activity';
-            document.getElementById('modalPriority').value = dest.priority || 'medium';
-            document.getElementById('modalCost').value = dest.cost || '';
-            document.getElementById('modalTime').value = dest.time || '';
-            document.getElementById('modalActivities').value = dest.activities;
-            document.getElementById('modalCoordinates').value = (dest.lat && dest.lng) ? `${dest.lat}, ${dest.lng}` : '';
-            document.getElementById('modalWebsiteLink').value = dest.websiteLink || '';
-            document.getElementById('modalGoogleMapsLink').value = dest.googleMapsLink || '';
-            document.getElementById('modalAdvisorSiteLink').value = dest.advisorSiteLink || '';
+    const destData = dataToLoad || (id ? destinations.find(d => d.id === id) : null);
+
+    if (destData) {
+        if (id) {
+            currentEditingId = id;
+            originalArrivalDateForEdit = destData.arrivalDate;
+        } else {
+            currentEditingId = null;
         }
+        document.getElementById('modalDestName').value = destData.name;
+        document.getElementById('modalArrivalDate').value = destData.arrivalDate;
+        document.getElementById('modalDepartureDate').value = destData.departureDate;
+        document.getElementById('modalCategory').value = destData.category || 'activity';
+        document.getElementById('modalPriority').value = destData.priority || 'medium';
+        document.getElementById('modalCost').value = destData.cost || '';
+        document.getElementById('modalTime').value = destData.time || '';
+        document.getElementById('modalActivities').value = destData.activities;
+        document.getElementById('modalCoordinates').value = (destData.lat && destData.lng) ? `${destData.lat}, ${destData.lng}` : '';
+        document.getElementById('modalWebsiteLink').value = destData.websiteLink || '';
+        document.getElementById('modalGoogleMapsLink').value = destData.googleMapsLink || '';
+        document.getElementById('modalAdvisorSiteLink').value = destData.advisorSiteLink || '';
     } else {
         currentEditingId = null;
         if (destinations.length > 0) {
@@ -253,6 +256,17 @@ function saveDestination() {
     } else {
         alert('Please fill in at least the destination name and arrival date.');
     }
+}
+
+function duplicateDestination(id) {
+    const originalDest = destinations.find(d => d.id === id);
+    if (!originalDest) return;
+
+    const newDestData = JSON.parse(JSON.stringify(originalDest));
+    newDestData.name = `${originalDest.name} - Copy`;
+    delete newDestData.id;
+
+    openAddModal(null, newDestData);
 }
 
 function deleteDestination(id) {
@@ -410,6 +424,7 @@ function renderDestinations() {
                         ${dest.advisorSiteLink ? `<a href="${dest.advisorSiteLink}" target="_blank" title="Visit Advisor Site"><i class="fas fa-user-tie"></i></a>` : ''}
                     </div>
                     <div class="crud-actions">
+                        <button class="btn btn-duplicate" onclick="duplicateDestination(${dest.id})"><i class="fas fa-copy"></i></button>
                         <button class="btn btn-edit" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-danger" onclick="deleteDestination(${dest.id})"><i class="fas fa-trash-alt"></i></button>
                     </div>
@@ -424,7 +439,7 @@ function renderDestinations() {
             ` : '';
 
             const priority = dest.priority || 'medium';
-            const priorityTagHtml = `<div class="priority-tag priority-${priority}">${priority}</div>`;
+            const priorityTagHtml = priority !== 'assumed' ? `<div class="priority-tag priority-${priority}">${priority}</div>` : '';
 
             div.innerHTML = `
                 <div class="destination-header">
@@ -530,6 +545,7 @@ function updateMarkers() {
                             ${dest.advisorSiteLink ? `<a href="${dest.advisorSiteLink}" target="_blank" title="Visit Advisor Site"><i class="fas fa-user-tie"></i></a>` : ''}
                         </div>
                         <div class="crud-actions">
+                            <button class="btn btn-duplicate" onclick="duplicateDestination(${dest.id})"><i class="fas fa-copy"></i></button>
                             <button class="btn btn-edit" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-danger" onclick="deleteDestination(${dest.id})"><i class="fas fa-trash-alt"></i></button>
                         </div>
@@ -545,6 +561,12 @@ function updateMarkers() {
             ` : '';
 
             const priority = dest.priority || 'medium';
+            const priorityHtml = priority !== 'assumed' ? `
+                <div class="popup-meta">
+                    <i class="fas fa-star"></i>
+                    <span style="text-transform: capitalize;">${priority} Priority</span>
+                </div>
+            ` : '';
 
             const popupContent = `
                 <div class="map-popup">
@@ -554,10 +576,7 @@ function updateMarkers() {
                         </div>
                         <h4>${dest.name}</h4>
                     </div>
-                     <div class="popup-meta">
-                        <i class="fas fa-star"></i>
-                        <span style="text-transform: capitalize;">${priority} Priority</span>
-                    </div>
+                    ${priorityHtml}
                     <div class="popup-meta">
                         <i class="fas fa-calendar-alt"></i>
                         <span>${formatDateRange(dest.arrivalDate, dest.departureDate)}</span>
@@ -576,7 +595,8 @@ function updateMarkers() {
             
             const marker = L.marker([dest.lat, dest.lng], { icon: markerIcon, riseOnHover: true })
                 .addTo(map)
-                .bindPopup(popupContent);
+                .bindPopup(popupContent)
+                .bindTooltip(dest.name);
             
             marker.destinationDate = dest.arrivalDate;
             markers.push(marker);
