@@ -330,7 +330,8 @@ body {
 .destination-links a { color: #2196f3; text-decoration: none; font-size: 14px; transition: color 0.2s; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
 .destination-links a:hover { background-color: #f0f0f0; color: #1976d2; }
 
-.destination-actions { display: flex; gap: 8px; }
+.destination-actions { display: flex; justify-content: space-between; width: 100%; }
+.crud-actions { display: flex; gap: 8px; }
 .destination-actions .btn { width: 32px; height: 32px; border-radius: 50%; padding: 0; font-size: 13px; background-color: transparent; border: none; box-shadow: none; }
 .destination-actions .btn:hover { transform: scale(1.1); background-color: #f0f0f0; }
 .destination-actions .btn-edit { color: #007bff; }
