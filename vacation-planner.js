@@ -451,6 +451,10 @@ function createDestinationElement(dest, color) {
     div.className = 'destination-item';
     div.dataset.id = dest.id;
 
+    if (dest.lat && dest.lng) {
+        div.setAttribute('onclick', `zoomToDestination(${dest.id})`);
+    }
+
     const iconClass = categoryIcons[dest.category] || 'fa-map-pin';
     const categoryIconHtml = `<div class="category-icon" style="background-color: ${color}"><i class="fas ${iconClass}"></i></div>`;
 
@@ -462,9 +466,9 @@ function createDestinationElement(dest, color) {
                 ${dest.advisorSiteLink ? `<a href="${dest.advisorSiteLink}" target="_blank" title="Visit Advisor Site"><i class="fas fa-user-tie"></i></a>` : ''}
             </div>
             <div class="crud-actions">
-                <button class="btn btn-duplicate" onclick="duplicateDestination(${dest.id})" title="Duplicate"><i class="fas fa-copy"></i></button>
-                <button class="btn btn-edit" onclick="openAddModal(${dest.id})" title="Edit"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-danger" onclick="deleteDestination(${dest.id})" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                <button class="btn btn-duplicate" onclick="event.stopPropagation(); duplicateDestination(${dest.id})" title="Duplicate"><i class="fas fa-copy"></i></button>
+                <button class="btn btn-edit" onclick="event.stopPropagation(); openAddModal(${dest.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger" onclick="event.stopPropagation(); deleteDestination(${dest.id})" title="Delete"><i class="fas fa-trash-alt"></i></button>
             </div>
         </div>
     `;
@@ -533,6 +537,21 @@ function initializeSortable() {
             }
         });
     });
+}
+
+function zoomToDestination(id) {
+    const dest = destinations.find(d => d.id === id);
+    if (!dest || !dest.lat || !dest.lng) {
+        console.warn('Destination has no coordinates to zoom to.');
+        return;
+    }
+
+    map.flyTo([dest.lat, dest.lng], 15);
+
+    const markerToOpen = markers.find(marker => marker.destinationId === id);
+    if (markerToOpen) {
+        markerToOpen.openPopup();
+    }
 }
 
 function updateMarkers() {
@@ -611,6 +630,7 @@ function updateMarkers() {
                 .bindTooltip(dest.name);
             
             marker.destinationDate = dest.arrivalDate;
+            marker.destinationId = dest.id;
             markers.push(marker);
         }
     });
