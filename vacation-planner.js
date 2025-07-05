@@ -46,7 +46,7 @@ function formatDate(dateString) {
 }
 
 function formatDateForInput(date) {
-    if (!(date instanceof Date)) return '';
+    if (!(date instanceof Date) || isNaN(date)) return '';
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
@@ -346,11 +346,48 @@ function renderDestinations() {
                 </div>
             `;
             
-            const actionsHtml = `...`; // Unchanged
-            const timeHtml = `...`; // Unchanged
-            const priorityTagHtml = `...`; // Unchanged
+            const actionsHtml = `
+                <div class="destination-actions">
+                    <button class="btn btn-edit" onclick="openAddModal(${dest.id})"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-danger" onclick="deleteDestination(${dest.id})"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `;
+            
+            const timeHtml = dest.time ? `
+                <div class="destination-meta time">
+                    <i class="fas fa-clock"></i>
+                    <span>${formatTime(dest.time)}</span>
+                </div>
+            ` : '';
 
-            div.innerHTML = `...`; // Unchanged, but with updated linksHtml
+            const priority = dest.priority || 'medium';
+            const priorityTagHtml = `<div class="priority-tag priority-${priority}">${priority}</div>`;
+
+            div.innerHTML = `
+                <div class="destination-header">
+                    ${categoryIconHtml}
+                    <div class="destination-content">
+                        <div class="destination-title">
+                            <h4>${dest.name}</h4>
+                            ${priorityTagHtml}
+                        </div>
+                        <div class="destination-meta">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>${formatDateRange(dest.arrivalDate, dest.departureDate)}</span>
+                        </div>
+                        <div class="destination-meta cost">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>${formatCost(dest.cost)}</span>
+                        </div>
+                        ${timeHtml}
+                        <div class="destination-activities">${dest.activities || ''}</div>
+                         <div class="destination-footer">
+                            ${linksHtml}
+                            ${actionsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
             dayGroup.appendChild(div);
         });
 
@@ -430,7 +467,42 @@ function updateMarkers() {
                 </div>
             `;
             
-            const popupContent = `...`; // Unchanged, but with updated linksHtml
+            const timeHtml = dest.time ? `
+                <div class="popup-meta">
+                    <i class="fas fa-clock"></i>
+                    <span>${formatTime(dest.time)}</span>
+                </div>
+            ` : '';
+
+            const priority = dest.priority || 'medium';
+
+            const popupContent = `
+                <div class="map-popup">
+                    <div class="popup-header">
+                        <div class="category-icon" style="background-color: ${dayColor}">
+                            <i class="fas ${iconClass}"></i>
+                        </div>
+                        <h4>${dest.name}</h4>
+                    </div>
+                     <div class="popup-meta">
+                        <i class="fas fa-star"></i>
+                        <span style="text-transform: capitalize;">${priority} Priority</span>
+                    </div>
+                    <div class="popup-meta">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>${formatDateRange(dest.arrivalDate, dest.departureDate)}</span>
+                    </div>
+                    <div class="popup-meta cost">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>$${formatCost(dest.cost)}</span>
+                    </div>
+                    ${timeHtml}
+                    <div class="popup-activities">
+                        ${dest.activities || 'No additional notes.'}
+                    </div>
+                    ${linksHtml}
+                </div>
+            `;
             
             const marker = L.marker([dest.lat, dest.lng], { icon: markerIcon, riseOnHover: true })
                 .addTo(map)
@@ -445,19 +517,104 @@ function updateMarkers() {
 }
 
 function filterByDay(date) {
-    // ... (unchanged)
+    if (date === currentFilteredDate) {
+        showAllDays();
+        return;
+    }
+
+    currentFilteredDate = date;
+    const visibleMarkers = [];
+    markers.forEach(marker => {
+        if (marker.destinationDate === date) {
+            marker.addTo(map);
+            visibleMarkers.push(marker);
+        } else {
+            map.removeLayer(marker);
+        }
+    });
+
+    document.querySelectorAll('.day-group').forEach(group => {
+        if (group.dataset.date === date) {
+            group.classList.remove('filtered');
+        } else {
+            group.classList.add('filtered');
+        }
+    });
+
+    if (visibleMarkers.length > 0 && autoZoomEnabled) {
+        const group = L.featureGroup(visibleMarkers);
+        map.fitBounds(group.getBounds().pad(0.2));
+    }
 }
 
 function showAllDays() {
-    // ... (unchanged)
+    currentFilteredDate = null;
+    const allVisibleMarkers = [];
+    markers.forEach(marker => {
+        marker.addTo(map);
+        allVisibleMarkers.push(marker);
+    });
+
+    document.querySelectorAll('.day-group').forEach(group => {
+        group.classList.remove('filtered');
+    });
+
+    if (allVisibleMarkers.length > 0 && autoZoomEnabled) {
+        const group = L.featureGroup(allVisibleMarkers);
+        map.fitBounds(group.getBounds().pad(0.2));
+    }
 }
 
 function exportToJSON() {
-    // ... (unchanged)
+    if (destinations.length === 0 && dayLabels.length === 0) {
+        alert('No data to export!');
+        return;
+    }
+    
+    const dataToExport = {
+        destinations: destinations,
+        dayLabels: dayLabels
+    };
+    
+    const jsonString = JSON.stringify(dataToExport, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vacation-itinerary-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 function importFromJSON(event) {
-    // ... (unchanged, but now loads dayLabels too)
+    if (destinations.length > 0 || dayLabels.length > 0) {
+        if (!confirm('An itinerary is already loaded. Do you want to overwrite it?')) {
+            event.target.value = '';
+            return;
+        }
+    }
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (typeof data === 'object' && data !== null && (Array.isArray(data.destinations) || Array.isArray(data.dayLabels))) {
+                    destinations = data.destinations || [];
+                    dayLabels = data.dayLabels || [];
+                    renderAll();
+                } else {
+                    alert('Invalid JSON file. The file must be a valid itinerary object.');
+                }
+            } catch (error) {
+                alert('Error parsing JSON file: ' + error.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+    event.target.value = '';
 }
 
 document.addEventListener('keydown', function(event) {
