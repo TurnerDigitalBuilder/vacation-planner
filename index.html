@@ -19,35 +19,37 @@
 
         <div class="main-content">
             <div class="sidebar">
-                <div class="total-cost-container">
-                    <h4>Total Estimated Cost</h4>
-                    <p id="totalCostDisplay">$0</p>
-                </div>
-
-                <div class="settings-controls">
-                    <div class="toggle-switch">
-                        <label for="autoZoomToggle">Auto-Zoom Map</label>
-                        <input type="checkbox" id="autoZoomToggle" class="toggle-input" checked>
-                        <label for="autoZoomToggle" class="toggle-label"></label>
+                <div class="sidebar-sticky-content">
+                    <div class="total-cost-container">
+                        <h4>Total Estimated Cost</h4>
+                        <p id="totalCostDisplay">$0</p>
                     </div>
-                </div>
-                
-                <div class="sidebar-header">
-                    <h3>Itinerary</h3>
-                    <div class="icon-actions">
-                        <button class="icon-btn add" onclick="openAddModal()" data-tooltip="Add Destination">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                        <button class="icon-btn export" onclick="exportToJSON()" data-tooltip="Export JSON">
-                            <i class="fas fa-download"></i>
-                        </button>
-                        <button class="icon-btn import" onclick="document.getElementById('fileInput').click()" data-tooltip="Import JSON">
-                            <i class="fas fa-upload"></i>
-                        </button>
-                        <button class="icon-btn clear-all" onclick="clearAll()" data-tooltip="Clear All">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        <input type="file" id="fileInput" accept=".json" onchange="importFromJSON(event)" style="display: none;">
+
+                    <div class="settings-controls">
+                        <div class="toggle-switch">
+                            <label for="autoZoomToggle">Auto-Zoom Map</label>
+                            <input type="checkbox" id="autoZoomToggle" class="toggle-input" checked>
+                            <label for="autoZoomToggle" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-header">
+                        <h3>Itinerary</h3>
+                        <div class="icon-actions">
+                            <button class="icon-btn add" onclick="openAddModal()" data-tooltip="Add Destination">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="icon-btn export" onclick="exportToJSON()" data-tooltip="Export JSON">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="icon-btn import" onclick="document.getElementById('fileInput').click()" data-tooltip="Import JSON">
+                                <i class="fas fa-upload"></i>
+                            </button>
+                            <button class="icon-btn clear-all" onclick="clearAll()" data-tooltip="Clear All">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <input type="file" id="fileInput" accept=".json" onchange="importFromJSON(event)" style="display: none;">
+                        </div>
                     </div>
                 </div>
 
