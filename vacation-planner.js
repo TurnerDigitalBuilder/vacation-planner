@@ -412,7 +412,7 @@ function renderDestinations() {
         document.getElementById('totalCostDisplay').textContent = '$0';
         return;
     }
-    
+
     const datedDestinations = destinations.filter(d => d.arrivalDate);
     const undatedDestinations = destinations.filter(d => !d.arrivalDate);
 
@@ -430,7 +430,7 @@ function renderDestinations() {
     for (const date of sortedDates) {
         const dayDetails = dayLabels.find(d => d.date === date);
         const dayColor = dayDetails?.color || defaultDayColors[dayCounter % defaultDayColors.length];
-        
+
         const dayGroup = document.createElement('div');
         dayGroup.className = 'day-group';
         dayGroup.style.backgroundColor = hexToRgba(dayColor, 0.05);
@@ -440,9 +440,9 @@ function renderDestinations() {
         const daySeparator = document.createElement('div');
         daySeparator.className = 'day-separator';
         daySeparator.style.color = dayColor;
-        
+
         const dayLabelText = dayDetails?.label || 'Add a title for this day...';
-        
+
         let dayTotalTime = 0;
         groupedByDate[date].forEach(dest => {
             totalCost += dest.cost;
@@ -453,9 +453,12 @@ function renderDestinations() {
 
         const totalTimeHtml = dayTotalTime > 0 ? `<div class="day-total-time">${formatTime(dayTotalTime)}</div>` : '';
         daySeparator.innerHTML = `
-            <div class="day-info" onclick="filterByDay('${date}')">
-                <span>Day ${dayCounter + 1} · ${formatDate(date)}</span>
-                ${totalTimeHtml}
+            <div class="day-separator-header">
+                <div class="day-info" onclick="filterByDay('${date}')">
+                    <span>Day ${dayCounter + 1} · ${formatDate(date)}</span>
+                    ${totalTimeHtml}
+                </div>
+                <button class="btn btn-toggle-day" onclick="toggleDayCollapse(this)"><i class="fas fa-chevron-up"></i></button>
             </div>
             <div class="day-label-container">
                 <span class="day-label">${dayLabelText}</span>
@@ -475,7 +478,7 @@ function renderDestinations() {
         const unscheduledGroup = document.createElement('div');
         unscheduledGroup.className = 'day-group unscheduled';
         unscheduledGroup.dataset.date = '';
-        
+
         undatedDestinations.forEach(dest => {
             totalCost += dest.cost;
             const div = createDestinationElement(dest, '#757575');
