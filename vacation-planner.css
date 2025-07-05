@@ -291,6 +291,11 @@ body {
     transition: all 0.2s ease-in-out;
     cursor: grab;
 }
+.destination-item.highlighted {
+    border-color: #2196f3;
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.5);
+    background-color: #e3f2fd;
+}
 .destination-item:last-child { margin-bottom: 0; }
 .destination-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #afafaf; }
 .destination-item:active { cursor: grabbing; }
