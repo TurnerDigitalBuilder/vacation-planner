@@ -295,6 +295,51 @@ function saveDayDetails() {
     closeDayEditModal();
 }
 
+function openShiftDatesModal() {
+    if (destinations.length === 0) {
+        alert('There are no dates to shift. Please add a destination first.');
+        return;
+    }
+    const modal = document.getElementById('shiftDatesModal');
+    const earliestDate = destinations.map(d => d.arrivalDate).sort((a, b) => new Date(a) - new Date(b))[0];
+    document.getElementById('newStartDate').value = earliestDate;
+    modal.style.display = 'block';
+}
+
+function closeShiftDatesModal() {
+    document.getElementById('shiftDatesModal').style.display = 'none';
+}
+
+function shiftAllDates() {
+    const newStartDateString = document.getElementById('newStartDate').value;
+    if (!newStartDateString) {
+        alert('Please select a new start date.');
+        return;
+    }
+
+    const newStartDate = new Date(newStartDateString + 'T00:00:00');
+    const oldStartDateString = destinations.map(d => d.arrivalDate).sort((a, b) => new Date(a) - new Date(b))[0];
+    const oldStartDate = new Date(oldStartDateString + 'T00:00:00');
+
+    const diffTime = newStartDate.getTime() - oldStartDate.getTime();
+    
+    destinations.forEach(dest => {
+        const oldArrival = new Date(dest.arrivalDate + 'T00:00:00');
+        const oldDeparture = new Date(dest.departureDate + 'T00:00:00');
+        
+        dest.arrivalDate = formatDateForInput(new Date(oldArrival.getTime() + diffTime));
+        dest.departureDate = formatDateForInput(new Date(oldDeparture.getTime() + diffTime));
+    });
+
+    dayLabels.forEach(label => {
+        const oldLabelDate = new Date(label.date + 'T00:00:00');
+        label.date = formatDateForInput(new Date(oldLabelDate.getTime() + diffTime));
+    });
+
+    renderAll();
+    closeShiftDatesModal();
+}
+
 // --- UI RENDERING ---
 
 function renderAll() {
@@ -634,5 +679,6 @@ document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeModal();
         closeDayEditModal();
+        closeShiftDatesModal();
     }
 });
