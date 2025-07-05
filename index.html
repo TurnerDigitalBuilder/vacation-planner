@@ -40,6 +40,9 @@
                             <button class="icon-btn add" onclick="openAddModal()" data-tooltip="Add Destination">
                                 <i class="fas fa-plus"></i>
                             </button>
+                            <button class="icon-btn" onclick="openShiftDatesModal()" data-tooltip="Shift All Dates">
+                                <i class="fas fa-calendar-alt"></i>
+                            </button>
                             <button class="icon-btn export" onclick="exportToJSON()" data-tooltip="Export JSON">
                                 <i class="fas fa-download"></i>
                             </button>
@@ -185,6 +188,27 @@
                 </button>
                 <button onclick="saveDayDetails()" class="btn btn-save">
                     <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="shiftDatesModal" class="modal">
+        <div class="modal-content" style="width: 400px;">
+            <div class="modal-body">
+                <h3 class="modal-title">Shift All Itinerary Dates</h3>
+                <div class="form-group">
+                    <label for="newStartDate">New Start Date</label>
+                    <input type="date" id="newStartDate">
+                </div>
+                <p class="modal-note">All dates in your itinerary will be shifted relative to this new start date.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeShiftDatesModal()" class="btn btn-cancel">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button onclick="shiftAllDates()" class="btn btn-save">
+                    <i class="fas fa-check"></i> Apply Shift
                 </button>
             </div>
         </div>
