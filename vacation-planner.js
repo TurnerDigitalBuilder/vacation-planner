@@ -103,6 +103,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const autoZoomToggle = document.getElementById('autoZoomToggle');
     const arrivalDateInput = document.getElementById('modalArrivalDate');
     const departureDateInput = document.getElementById('modalDepartureDate');
+    const toggleBtn = document.getElementById('toggleSidebarHeaderBtn');
+    const collapsibleContent = document.getElementById('collapsibleSidebarContent');
 
     initializeMap();
     loadInitialData();
@@ -119,6 +121,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 departureDateInput.value = arrivalDate;
             }
         }
+    });
+
+    toggleBtn.addEventListener('click', () => {
+        collapsibleContent.classList.toggle('is-collapsed');
     });
 });
 
@@ -396,7 +402,6 @@ function renderDestinations() {
             const iconClass = categoryIcons[dest.category] || 'fa-map-pin';
             const categoryIconHtml = `<div class="category-icon" style="background-color: ${dayColor}"><i class="fas ${iconClass}"></i></div>`;
 
-            // MODIFIED: Restructured the actions and links
             const actionsHtml = `
                 <div class="destination-actions">
                     <div class="destination-links">
@@ -516,7 +521,6 @@ function updateMarkers() {
                 iconAnchor: [16, 32]
             });
 
-            // MODIFIED: Restructured the actions and links for the popup
             const footerHtml = `
                 <div class="destination-footer">
                     <div class="destination-actions">
