@@ -75,26 +75,15 @@
                         <button class="icon-btn" onclick="openShiftDatesModal()" data-tooltip="Shift All Dates">
                             <i class="fas fa-calendar-alt"></i>
                         </button>
+                        <button class="icon-btn auto-zoom active" id="autoZoomBtn" onclick="toggleAutoZoom()" data-tooltip="Auto-Zoom Map">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
                         <button class="icon-btn clear-all" onclick="clearAll()" data-tooltip="Clear All">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                     
                     <div class="sidebar-content">
-                        <div class="sidebar-controls">
-                            <div class="sidebar-header">
-                                <h3>Itinerary</h3>
-                            </div>
-
-                            <div class="settings-controls">
-                                <div class="toggle-switch">
-                                    <label for="autoZoomToggle">Auto-Zoom Map</label>
-                                    <input type="checkbox" id="autoZoomToggle" class="toggle-input" checked>
-                                    <label for="autoZoomToggle" class="toggle-label"></label>
-                                </div>
-                            </div>
-                        </div>
-
                         <div id="destinationsList" class="destinations-list"></div>
                         
                         <div id="unscheduledContainer" class="unscheduled-container"></div>
