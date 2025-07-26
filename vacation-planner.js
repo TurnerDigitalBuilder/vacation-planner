@@ -8,6 +8,14 @@ let originalArrivalDateForEdit = null;
 let autoZoomEnabled = true;
 let currentFilteredDate = null;
 
+// Trip settings
+let tripSettings = {
+    destination: '',
+    startDate: '',
+    endDate: '',
+    budget: 0
+};
+
 // Category to Font Awesome icon mapping
 const categoryIcons = {
     accommodation: 'fa-hotel',
@@ -78,7 +86,8 @@ function formatTime(hours) {
 function saveDataToCache() {
     const dataToSave = {
         destinations: destinations,
-        dayLabels: dayLabels
+        dayLabels: dayLabels,
+        tripSettings: tripSettings
     };
     localStorage.setItem('vacationData', JSON.stringify(dataToSave));
 }
@@ -90,13 +99,26 @@ function loadInitialData() {
             const data = JSON.parse(cachedData);
             destinations = data.destinations || [];
             dayLabels = data.dayLabels || [];
+            tripSettings = data.tripSettings || {
+                destination: '',
+                startDate: '',
+                endDate: '',
+                budget: 0
+            };
         } catch (e) {
             console.error("Error parsing cached data:", e);
             destinations = [];
             dayLabels = [];
+            tripSettings = {
+                destination: '',
+                startDate: '',
+                endDate: '',
+                budget: 0
+            };
             localStorage.removeItem('vacationData');
         }
     }
+    updateTripDisplay();
     renderAll();
 }
 
@@ -105,8 +127,6 @@ function loadInitialData() {
 document.addEventListener('DOMContentLoaded', function() {
     const autoZoomToggle = document.getElementById('autoZoomToggle');
     const arrivalDateInput = document.getElementById('modalArrivalDate');
-    const toggleBtn = document.getElementById('toggleSidebarHeaderBtn');
-    const collapsibleContent = document.getElementById('collapsibleSidebarContent');
 
     initializeMap();
     loadInitialData();
@@ -121,12 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modalDepartureDate').min = arrivalDate;
         }
     });
-
-    toggleBtn.addEventListener('click', () => {
-        collapsibleContent.classList.toggle('is-collapsed');
-        const dates = [...new Set(destinations.filter(d => d.arrivalDate).map(d => d.arrivalDate))].sort((a,b) => new Date(a) - new Date(b));
-        renderDayNavigation(dates);
-    });
 });
 
 function initializeMap() {
@@ -140,6 +154,50 @@ function initializeMap() {
             item.classList.remove('highlighted');
         });
     });
+}
+
+// --- TRIP SETTINGS ---
+
+function openTripSettingsModal() {
+    const modal = document.getElementById('tripSettingsModal');
+    document.getElementById('tripName').value = tripSettings.destination;
+    document.getElementById('tripStartDate').value = tripSettings.startDate;
+    document.getElementById('tripEndDate').value = tripSettings.endDate;
+    document.getElementById('tripBudget').value = tripSettings.budget || '';
+    modal.style.display = 'block';
+}
+
+function closeTripSettingsModal() {
+    document.getElementById('tripSettingsModal').style.display = 'none';
+}
+
+function saveTripSettings() {
+    tripSettings.destination = document.getElementById('tripName').value;
+    tripSettings.startDate = document.getElementById('tripStartDate').value;
+    tripSettings.endDate = document.getElementById('tripEndDate').value;
+    tripSettings.budget = parseFloat(document.getElementById('tripBudget').value) || 0;
+    
+    updateTripDisplay();
+    saveDataToCache();
+    closeTripSettingsModal();
+}
+
+function updateTripDisplay() {
+    // Update destination display
+    const destDisplay = document.getElementById('tripDestination');
+    destDisplay.textContent = tripSettings.destination || 'Set Destination';
+    
+    // Update dates display
+    const datesDisplay = document.getElementById('tripDatesDisplay');
+    if (tripSettings.startDate && tripSettings.endDate) {
+        datesDisplay.textContent = formatDateRange(tripSettings.startDate, tripSettings.endDate);
+    } else {
+        datesDisplay.textContent = 'No dates set';
+    }
+    
+    // Update budget display
+    const budgetDisplay = document.getElementById('budgetDisplay');
+    budgetDisplay.textContent = formatCost(tripSettings.budget);
 }
 
 // --- MODAL AND DATA HANDLING ---
@@ -173,11 +231,18 @@ function openAddModal(id = null, dataToLoad = null) {
     } else {
         currentEditingId = null; 
         
-        const datedDestinations = destinations.filter(d => d.arrivalDate);
-        if (datedDestinations.length > 0) {
-            const earliestDate = datedDestinations.map(d => d.arrivalDate).sort((a, b) => new Date(a) - new Date(b))[0];
-            document.getElementById('modalArrivalDate').value = earliestDate;
-            document.getElementById('modalDepartureDate').min = earliestDate;
+        // If trip dates are set, use them as defaults
+        if (tripSettings.startDate) {
+            document.getElementById('modalArrivalDate').value = tripSettings.startDate;
+            document.getElementById('modalDepartureDate').value = tripSettings.startDate;
+            document.getElementById('modalDepartureDate').min = tripSettings.startDate;
+        } else {
+            const datedDestinations = destinations.filter(d => d.arrivalDate);
+            if (datedDestinations.length > 0) {
+                const earliestDate = datedDestinations.map(d => d.arrivalDate).sort((a, b) => new Date(a) - new Date(b))[0];
+                document.getElementById('modalArrivalDate').value = earliestDate;
+                document.getElementById('modalDepartureDate').min = earliestDate;
+            }
         }
     }
     modal.style.display = 'block';
@@ -423,7 +488,7 @@ function renderDestinations() {
 
     if (destinations.length === 0) {
         datedContainer.innerHTML = `<div class="empty-state"><i class="fas fa-map-marked-alt"></i><p>No destinations yet.</p></div>`;
-        document.getElementById('totalCostDisplay').textContent = '$0';
+        document.getElementById('totalCostDisplay').textContent = '0';
         return;
     }
     
@@ -518,7 +583,18 @@ function renderDestinations() {
         unscheduledContainer.appendChild(unscheduledGroup);
     }
 
-    document.getElementById('totalCostDisplay').textContent = `$${formatCost(totalCost)}`;
+    document.getElementById('totalCostDisplay').textContent = formatCost(totalCost);
+    
+    // Update budget display color
+    const budgetDisplay = document.querySelector('.budget-display');
+    if (tripSettings.budget > 0 && totalCost > tripSettings.budget) {
+        budgetDisplay.style.backgroundColor = '#ffebee';
+        budgetDisplay.style.color = '#c62828';
+    } else {
+        budgetDisplay.style.backgroundColor = '#e8f5e9';
+        budgetDisplay.style.color = '#1b5e20';
+    }
+    
     initializeSortable();
 }
 
@@ -739,8 +815,7 @@ function renderDayNavigation(dates) {
     if (!nav) return;
     nav.innerHTML = '';
 
-    const collapsed = document.getElementById('collapsibleSidebarContent').classList.contains('is-collapsed');
-    if (dates.length === 0 || collapsed) {
+    if (dates.length === 0) {
         nav.style.display = 'none';
         return;
     }
@@ -749,12 +824,18 @@ function renderDayNavigation(dates) {
     dates.forEach((date, index) => {
         const dayDetails = dayLabels.find(d => d.date === date);
         const color = dayDetails?.color || defaultDayColors[index % defaultDayColors.length];
-        const weekday = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
+        const dateObj = new Date(date + 'T00:00:00');
+        const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+        const day = dateObj.getDate();
+        
         const btn = document.createElement('button');
         btn.className = 'day-nav-button';
         btn.dataset.date = date;
         btn.style.color = color;
-        btn.textContent = `${index + 1}${weekday}`;
+        btn.style.borderColor = color;
+        btn.textContent = `${weekday} ${day}`;
+        btn.title = `Day ${index + 1} - ${formatDate(date)}`;
+        
         btn.addEventListener('click', () => {
             const group = document.querySelector(`.day-group[data-date='${date}']`);
             if (group) {
@@ -778,8 +859,15 @@ function updateActiveNavigation(date) {
     document.querySelectorAll('.day-nav-button').forEach(btn => {
         if (date && btn.dataset.date === date) {
             btn.classList.add('active');
+            const color = btn.style.color;
+            btn.style.backgroundColor = color;
+            btn.style.color = 'white';
+            btn.style.borderColor = color;
         } else {
             btn.classList.remove('active');
+            btn.style.backgroundColor = 'white';
+            const color = btn.style.borderColor;
+            btn.style.color = color;
         }
     });
 }
@@ -845,7 +933,8 @@ function exportToJSON() {
     
     const dataToExport = {
         destinations: destinations,
-        dayLabels: dayLabels
+        dayLabels: dayLabels,
+        tripSettings: tripSettings
     };
     
     const jsonString = JSON.stringify(dataToExport, null, 2);
@@ -853,11 +942,18 @@ function exportToJSON() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `vacation-itinerary-${new Date().toISOString().split('T')[0]}.json`;
+    
+    const tripName = tripSettings.destination ? tripSettings.destination.replace(/[^a-z0-9]/gi, '-').toLowerCase() : 'vacation';
+    a.download = `${tripName}-itinerary-${new Date().toISOString().split('T')[0]}.json`;
+    
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+function saveTripToJSON() {
+    exportToJSON();
 }
 
 function importFromJSON(event) {
@@ -876,6 +972,13 @@ function importFromJSON(event) {
                 if (typeof data === 'object' && data !== null && (Array.isArray(data.destinations) || Array.isArray(data.dayLabels))) {
                     destinations = data.destinations || [];
                     dayLabels = data.dayLabels || [];
+                    tripSettings = data.tripSettings || {
+                        destination: '',
+                        startDate: '',
+                        endDate: '',
+                        budget: 0
+                    };
+                    updateTripDisplay();
                     renderAll();
                 } else {
                     alert('Invalid JSON file. The file must be a valid itinerary object.');
@@ -894,5 +997,6 @@ document.addEventListener('keydown', function(event) {
         closeModal();
         closeDayEditModal();
         closeShiftDatesModal();
+        closeTripSettingsModal();
     }
 });
