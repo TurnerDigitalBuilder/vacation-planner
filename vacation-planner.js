@@ -751,7 +751,11 @@ function zoomToDestination(id) {
         return;
     }
 
-    map.flyTo([dest.lat, dest.lng], 15);
+    // Only zoom if auto-zoom is enabled
+    if (autoZoomEnabled) {
+        map.flyTo([dest.lat, dest.lng], 15);
+    }
+    
     highlightAndScrollToDestination(id);
 
     const markerToOpen = markers.find(marker => marker.destinationId === id);
