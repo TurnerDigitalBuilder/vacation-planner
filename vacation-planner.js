@@ -273,6 +273,19 @@ function openAddModal(id = null, dataToLoad = null) {
     modal.style.display = 'block';
 }
 
+function openAddModalForDay(date) {
+    const modal = document.getElementById('destinationModal');
+    clearModalForm();
+    currentEditingId = null;
+    
+    // Set both arrival and departure dates to the selected day
+    document.getElementById('modalArrivalDate').value = date;
+    document.getElementById('modalDepartureDate').value = date;
+    document.getElementById('modalDepartureDate').min = date;
+    
+    modal.style.display = 'block';
+}
+
 function closeModal() {
     document.getElementById('destinationModal').style.display = 'none';
     currentEditingId = null;
@@ -597,7 +610,10 @@ function renderDestinations() {
             </div>
             <div class="day-label-container">
                 <span class="day-label">${dayLabelText}</span>
-                <button class="btn btn-edit-day" onclick="openDayEditModal('${date}')"><i class="fas fa-pencil-alt"></i></button>
+                <div class="day-label-actions">
+                    <button class="btn btn-add-day" onclick="openAddModalForDay('${date}')" title="Add destination to this day"><i class="fas fa-plus"></i></button>
+                    <button class="btn btn-edit-day" onclick="openDayEditModal('${date}')" title="Edit day title"><i class="fas fa-pencil-alt"></i></button>
+                </div>
             </div>
             <div class="day-preview">${previewHtml}</div>
         `;
