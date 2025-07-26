@@ -87,7 +87,8 @@ function saveDataToCache() {
     const dataToSave = {
         destinations: destinations,
         dayLabels: dayLabels,
-        tripSettings: tripSettings
+        tripSettings: tripSettings,
+        autoZoomEnabled: autoZoomEnabled
     };
     localStorage.setItem('vacationData', JSON.stringify(dataToSave));
 }
@@ -105,6 +106,9 @@ function loadInitialData() {
                 endDate: '',
                 budget: 0
             };
+            if (data.autoZoomEnabled !== undefined) {
+                autoZoomEnabled = data.autoZoomEnabled;
+            }
         } catch (e) {
             console.error("Error parsing cached data:", e);
             destinations = [];
@@ -115,6 +119,7 @@ function loadInitialData() {
                 endDate: '',
                 budget: 0
             };
+            autoZoomEnabled = true;
             localStorage.removeItem('vacationData');
         }
     }
@@ -125,15 +130,16 @@ function loadInitialData() {
 // --- INITIALIZATION ---
 
 document.addEventListener('DOMContentLoaded', function() {
-    const autoZoomToggle = document.getElementById('autoZoomToggle');
     const arrivalDateInput = document.getElementById('modalArrivalDate');
 
     initializeMap();
     loadInitialData();
     
-    autoZoomToggle.addEventListener('change', (e) => {
-        autoZoomEnabled = e.target.checked;
-    });
+    // Set initial auto-zoom button state
+    const autoZoomBtn = document.getElementById('autoZoomBtn');
+    if (autoZoomBtn && autoZoomEnabled) {
+        autoZoomBtn.classList.add('active');
+    }
 
     arrivalDateInput.addEventListener('change', () => {
         const arrivalDate = arrivalDateInput.value;
@@ -142,6 +148,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+function toggleAutoZoom() {
+    autoZoomEnabled = !autoZoomEnabled;
+    const autoZoomBtn = document.getElementById('autoZoomBtn');
+    
+    if (autoZoomEnabled) {
+        autoZoomBtn.classList.add('active');
+        // If enabling auto-zoom, fit map to current markers
+        if (currentFilteredDate) {
+            filterByDay(currentFilteredDate);
+        } else {
+            showAllDays();
+        }
+    } else {
+        autoZoomBtn.classList.remove('active');
+    }
+    
+    saveDataToCache();
+}
 
 function initializeMap() {
     map = L.map('map').setView([65, -18], 6);
@@ -478,6 +503,16 @@ function renderAll() {
     renderDestinations();
     updateMarkers();
     saveDataToCache();
+    
+    // Update auto-zoom button state
+    const autoZoomBtn = document.getElementById('autoZoomBtn');
+    if (autoZoomBtn) {
+        if (autoZoomEnabled) {
+            autoZoomBtn.classList.add('active');
+        } else {
+            autoZoomBtn.classList.remove('active');
+        }
+    }
 }
 
 function renderDestinations() {
@@ -934,7 +969,8 @@ function exportToJSON() {
     const dataToExport = {
         destinations: destinations,
         dayLabels: dayLabels,
-        tripSettings: tripSettings
+        tripSettings: tripSettings,
+        autoZoomEnabled: autoZoomEnabled
     };
     
     const jsonString = JSON.stringify(dataToExport, null, 2);
@@ -978,8 +1014,21 @@ function importFromJSON(event) {
                         endDate: '',
                         budget: 0
                     };
+                    if (data.autoZoomEnabled !== undefined) {
+                        autoZoomEnabled = data.autoZoomEnabled;
+                    }
                     updateTripDisplay();
                     renderAll();
+                    
+                    // Update auto-zoom button state
+                    const autoZoomBtn = document.getElementById('autoZoomBtn');
+                    if (autoZoomBtn) {
+                        if (autoZoomEnabled) {
+                            autoZoomBtn.classList.add('active');
+                        } else {
+                            autoZoomBtn.classList.remove('active');
+                        }
+                    }
                 } else {
                     alert('Invalid JSON file. The file must be a valid itinerary object.');
                 }
