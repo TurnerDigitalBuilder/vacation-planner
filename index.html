@@ -15,30 +15,55 @@
 <body>
     <div class="container">
         <header class="header">
-            <button id="toggleSidebarHeaderBtn" class="header-btn" data-tooltip="Toggle Plan Controls">
-                <i class="fas fa-bars"></i>
-            </button>
-            <h1>Vacation Planner</h1>
+            <!-- Left Section - Title and Destination -->
+            <div class="header-left">
+                <h1>Vacation Planner</h1>
+                <div class="destination-display">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="tripDestination">Set Destination</span>
+                    <button class="btn-edit-inline" onclick="openTripSettingsModal()">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Center Section - Day Navigation -->
+            <div class="header-center">
+                <div id="dayNavigation" class="day-navigation-header"></div>
+            </div>
+
+            <!-- Right Section - Trip Info and Actions -->
+            <div class="header-right">
+                <div class="trip-dates">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="tripDatesDisplay">No dates set</span>
+                </div>
+                <div class="budget-display">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span id="totalCostDisplay">0</span>
+                    <span class="budget-separator">/</span>
+                    <span id="budgetDisplay">0</span>
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="exportToJSON()" data-tooltip="Export">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="header-btn" onclick="document.getElementById('fileInput').click()" data-tooltip="Import">
+                        <i class="fas fa-upload"></i>
+                    </button>
+                    <input type="file" id="fileInput" accept=".json" onchange="importFromJSON(event)" style="display: none;">
+                    <button class="header-btn primary" onclick="saveTripToJSON()" data-tooltip="Save Trip">
+                        <i class="fas fa-save"></i>
+                    </button>
+                </div>
+            </div>
         </header>
 
         <div class="main-content">
             <div class="sidebar">
-                <div id="collapsibleSidebarContent" class="sidebar-sticky-content">
-                    <div class="total-cost-container">
-                        <h4>Total Estimated Cost</h4>
-                        <p id="totalCostDisplay">$0</p>
-                    </div>
-
-                    <div class="settings-controls">
-                        <div class="toggle-switch">
-                            <label for="autoZoomToggle">Auto-Zoom Map</label>
-                            <input type="checkbox" id="autoZoomToggle" class="toggle-input" checked>
-                            <label for="autoZoomToggle" class="toggle-label"></label>
-                        </div>
-                    </div>
-                    
+                <div class="sidebar-controls">
                     <div class="sidebar-header">
-                        <h3>Plan</h3>
+                        <h3>Itinerary</h3>
                         <div class="icon-actions">
                             <button class="icon-btn add" onclick="openAddModal()" data-tooltip="Add Destination">
                                 <i class="fas fa-plus"></i>
@@ -52,27 +77,24 @@
                             <button class="icon-btn" onclick="openShiftDatesModal()" data-tooltip="Shift All Dates">
                                 <i class="fas fa-calendar-alt"></i>
                             </button>
-                            <button class="icon-btn export" onclick="exportToJSON()" data-tooltip="Export JSON">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="icon-btn import" onclick="document.getElementById('fileInput').click()" data-tooltip="Import JSON">
-                                <i class="fas fa-upload"></i>
-                            </button>
                             <button class="icon-btn clear-all" onclick="clearAll()" data-tooltip="Clear All">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            <input type="file" id="fileInput" accept=".json" onchange="importFromJSON(event)" style="display: none;">
                         </div>
                     </div>
 
-                    <div id="dayNavigation" class="day-navigation-container"></div>
+                    <div class="settings-controls">
+                        <div class="toggle-switch">
+                            <label for="autoZoomToggle">Auto-Zoom Map</label>
+                            <input type="checkbox" id="autoZoomToggle" class="toggle-input" checked>
+                            <label for="autoZoomToggle" class="toggle-label"></label>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="destinationsList" class="destinations-list">
-                    </div>
+                <div id="destinationsList" class="destinations-list"></div>
                 
-                <div id="unscheduledContainer" class="unscheduled-container">
-                    </div>
+                <div id="unscheduledContainer" class="unscheduled-container"></div>
             </div>
 
             <div class="map-container">
@@ -81,12 +103,48 @@
         </div>
     </div>
 
+    <!-- Trip Settings Modal -->
+    <div id="tripSettingsModal" class="modal">
+        <div class="modal-content" style="width: 500px;">
+            <div class="modal-body">
+                <h3 class="modal-title">Trip Settings</h3>
+                <div class="form-group">
+                    <label for="tripName">Trip Destination</label>
+                    <input type="text" id="tripName" placeholder="e.g., Paris, France">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tripStartDate">Start Date</label>
+                        <input type="date" id="tripStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="tripEndDate">End Date</label>
+                        <input type="date" id="tripEndDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="tripBudget">Budget ($)</label>
+                    <input type="number" id="tripBudget" step="100" placeholder="e.g., 5000">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeTripSettingsModal()" class="btn btn-cancel">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button onclick="saveTripSettings()" class="btn btn-save">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Existing Destination Modal -->
     <div id="destinationModal" class="modal">
         <div class="modal-content">
             <div class="modal-body">
                 <div class="form-group">
                     <label for="modalDestName">Destination Name</label>
-                    <input type="text" id="modalDestName" placeholder="e.g., Reykjavik, Iceland">
+                    <input type="text" id="modalDestName" placeholder="e.g., Eiffel Tower">
                 </div>
                 
                 <div class="form-row">
@@ -187,6 +245,7 @@
         </div>
     </div>
 
+    <!-- Existing Day Edit Modal -->
     <div id="dayEditModal" class="modal">
         <div class="modal-content" style="width: 400px;">
             <div class="modal-body">
@@ -212,6 +271,7 @@
         </div>
     </div>
 
+    <!-- Existing Shift Dates Modal -->
     <div id="shiftDatesModal" class="modal">
         <div class="modal-content" style="width: 400px;">
             <div class="modal-body">
