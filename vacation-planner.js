@@ -124,6 +124,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     toggleBtn.addEventListener('click', () => {
         collapsibleContent.classList.toggle('is-collapsed');
+        const dates = [...new Set(destinations.filter(d => d.arrivalDate).map(d => d.arrivalDate))].sort((a,b) => new Date(a) - new Date(b));
+        renderDayNavigation(dates);
     });
 });
 
@@ -439,6 +441,8 @@ function renderDestinations() {
     let totalCost = 0;
     const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(a) - new Date(b));
 
+    renderDayNavigation(sortedDates);
+
     for (const date of sortedDates) {
         const dayDetails = dayLabels.find(d => d.date === date);
         const dayColor = dayDetails?.color || defaultDayColors[dayCounter % defaultDayColors.length];
@@ -730,6 +734,56 @@ function updateMarkers() {
     if (!currentFilteredDate) showAllDays();
 }
 
+function renderDayNavigation(dates) {
+    const nav = document.getElementById('dayNavigation');
+    if (!nav) return;
+    nav.innerHTML = '';
+
+    const collapsed = document.getElementById('collapsibleSidebarContent').classList.contains('is-collapsed');
+    if (dates.length === 0 || collapsed) {
+        nav.style.display = 'none';
+        return;
+    }
+    nav.style.display = 'flex';
+
+    dates.forEach((date, index) => {
+        const dayDetails = dayLabels.find(d => d.date === date);
+        const color = dayDetails?.color || defaultDayColors[index % defaultDayColors.length];
+        const weekday = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
+        const btn = document.createElement('button');
+        btn.className = 'day-nav-button';
+        btn.dataset.date = date;
+        btn.style.color = color;
+        btn.textContent = `${index + 1}${weekday}`;
+        btn.addEventListener('click', () => {
+            const group = document.querySelector(`.day-group[data-date='${date}']`);
+            if (group) {
+                if (group.classList.contains('collapsed')) {
+                    group.classList.remove('collapsed');
+                    const icon = group.querySelector('.btn-toggle-day i');
+                    if (icon) { icon.classList.remove('fa-chevron-down'); icon.classList.add('fa-chevron-up'); }
+                }
+                group.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                group.classList.add('flash-highlight');
+                setTimeout(() => group.classList.remove('flash-highlight'), 800);
+            }
+        });
+        nav.appendChild(btn);
+    });
+
+    updateActiveNavigation(currentFilteredDate);
+}
+
+function updateActiveNavigation(date) {
+    document.querySelectorAll('.day-nav-button').forEach(btn => {
+        if (date && btn.dataset.date === date) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
 function filterByDay(date) {
     if (date === currentFilteredDate) {
         showAllDays();
@@ -759,6 +813,8 @@ function filterByDay(date) {
         const group = L.featureGroup(visibleMarkers);
         map.fitBounds(group.getBounds().pad(0.2));
     }
+
+    updateActiveNavigation(date);
 }
 
 function showAllDays() {
@@ -777,6 +833,8 @@ function showAllDays() {
         const group = L.featureGroup(allVisibleMarkers);
         map.fitBounds(group.getBounds().pad(0.2));
     }
+
+    updateActiveNavigation(null);
 }
 
 function exportToJSON() {

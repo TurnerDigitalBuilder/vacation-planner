@@ -166,6 +166,56 @@ body {
 
 .sidebar-header h3 { margin: 0; font-size: 22px; }
 .icon-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.day-navigation-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.day-nav-button {
+    min-width: 40px;
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-color: rgba(0,0,0,0.1);
+}
+
+.day-nav-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    filter: brightness(1.1);
+}
+
+.day-nav-button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.day-nav-button.active {
+    box-shadow: 0 0 0 2px currentColor;
+    filter: brightness(1.2);
+    transform: scale(1.05);
+}
+
+.flash-highlight {
+    animation: flash-highlight 0.8s ease;
+}
+
+@keyframes flash-highlight {
+    0% { box-shadow: 0 0 0 2px #2196f3; background-color: #e3f2fd; }
+    100% { box-shadow: none; background-color: inherit; }
+}
 .icon-btn {
     background: linear-gradient(145deg, #fdfdfd, #f0f0f0);
     border: none;
