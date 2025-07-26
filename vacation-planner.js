@@ -842,7 +842,12 @@ function updateMarkers() {
         }
     });
 
-    if (!currentFilteredDate) showAllDays();
+    // Apply current filter state to new markers
+    if (currentFilteredDate) {
+        filterByDay(currentFilteredDate);
+    } else {
+        showAllDays();
+    }
 }
 
 function renderDayNavigation(dates) {
@@ -872,6 +877,10 @@ function renderDayNavigation(dates) {
         btn.title = `Day ${index + 1} - ${formatDate(date)}`;
         
         btn.addEventListener('click', () => {
+            // Filter by day (which will handle map zoom and dimming)
+            filterByDay(date);
+            
+            // Also scroll to the day group
             const group = document.querySelector(`.day-group[data-date='${date}']`);
             if (group) {
                 if (group.classList.contains('collapsed')) {
@@ -915,15 +924,20 @@ function filterByDay(date) {
 
     currentFilteredDate = date;
     const visibleMarkers = [];
+    
+    // Dim all markers first, then highlight the selected day's markers
     markers.forEach(marker => {
         if (marker.destinationDate === date) {
-            marker.addTo(map);
+            marker.setOpacity(1);
+            marker.setZIndexOffset(1000); // Bring to front
             visibleMarkers.push(marker);
         } else {
-            map.removeLayer(marker);
+            marker.setOpacity(0.3); // Dim other markers
+            marker.setZIndexOffset(0);
         }
     });
 
+    // Dim/highlight day groups in sidebar
     document.querySelectorAll('.day-group').forEach(group => {
         if (group.dataset.date === date) {
             group.classList.remove('filtered');
@@ -932,6 +946,7 @@ function filterByDay(date) {
         }
     });
 
+    // Auto-zoom to selected day's markers if enabled
     if (visibleMarkers.length > 0 && autoZoomEnabled) {
         const group = L.featureGroup(visibleMarkers);
         map.fitBounds(group.getBounds().pad(0.2));
@@ -943,15 +958,20 @@ function filterByDay(date) {
 function showAllDays() {
     currentFilteredDate = null;
     const allVisibleMarkers = [];
+    
+    // Restore full opacity to all markers
     markers.forEach(marker => {
-        marker.addTo(map);
+        marker.setOpacity(1);
+        marker.setZIndexOffset(0);
         allVisibleMarkers.push(marker);
     });
 
+    // Remove filtering from all day groups
     document.querySelectorAll('.day-group').forEach(group => {
         group.classList.remove('filtered');
     });
 
+    // Auto-zoom to show all markers if enabled
     if (allVisibleMarkers.length > 0 && autoZoomEnabled) {
         const group = L.featureGroup(allVisibleMarkers);
         map.fitBounds(group.getBounds().pad(0.2));
