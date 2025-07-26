@@ -503,6 +503,10 @@ body {
     color: #555;
     font-style: italic;
 }
+.day-label-actions {
+    display: flex;
+    gap: 6px;
+}
 
 .day-preview {
     display: none;
@@ -540,7 +544,7 @@ body {
     text-align: center;
 }
 
-.btn-edit-day, .btn-toggle-day {
+.btn-edit-day, .btn-toggle-day, .btn-add-day {
     background: transparent;
     border: none;
     cursor: pointer;
@@ -555,7 +559,8 @@ body {
     justify-content: center;
 }
 .btn-toggle-day { font-size: 16px; width: 32px; height: 32px; }
-.btn-edit-day:hover, .btn-toggle-day:hover { background-color: #f0f0f0; color: #333; }
+.btn-edit-day:hover, .btn-toggle-day:hover, .btn-add-day:hover { background-color: #f0f0f0; color: #333; }
+.btn-add-day:hover { color: #4caf50; }
 
 .destination-item {
     border-top: 1px solid #e0e0e0;
