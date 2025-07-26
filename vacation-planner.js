@@ -582,10 +582,15 @@ function renderDestinations() {
         }
 
         const totalTimeHtml = dayTotalTime > 0 ? `<div class="day-total-time">${formatTime(dayTotalTime)}</div>` : '';
+        
+        // Get day of week
+        const dateObj = new Date(date + 'T00:00:00');
+        const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+        
         daySeparator.innerHTML = `
             <div class="day-separator-header">
                 <div class="day-info" onclick="filterByDay('${date}')">
-                    <span>Day ${dayCounter + 1} · ${formatDate(date)}</span>
+                    <span>${weekday} Day ${dayCounter + 1} · ${formatDate(date)}</span>
                     ${totalTimeHtml}
                 </div>
                 <button class="btn btn-toggle-day" onclick="toggleDayCollapse(this)"><i class="fas fa-chevron-up"></i></button>
