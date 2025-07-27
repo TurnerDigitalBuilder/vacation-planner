@@ -893,15 +893,14 @@ function renderDayNavigation(dates) {
         const color = dayDetails?.color || defaultDayColors[index % defaultDayColors.length];
         const dateObj = new Date(date + 'T00:00:00');
         const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-        const day = dateObj.getDate();
-        
+
         const btn = document.createElement('button');
         btn.className = 'day-nav-button';
         btn.dataset.date = date;
         btn.style.color = color;
         btn.style.borderColor = color;
-        btn.textContent = `${weekday} ${day}`;
-        btn.title = `Day ${index + 1} - ${formatDate(date)}`;
+        btn.textContent = `Day ${index + 1}`;
+        btn.title = `${weekday} ${formatDate(date)}`;
         
         btn.addEventListener('click', () => {
             // Filter by day (which will handle map zoom and dimming)
