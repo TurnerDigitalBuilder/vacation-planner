@@ -899,7 +899,7 @@ function renderDayNavigation(dates) {
         btn.dataset.date = date;
         btn.style.color = color;
         btn.style.borderColor = color;
-        btn.textContent = `Day ${index + 1}`;
+        btn.textContent = `${weekday} ${index + 1}`;
         btn.title = `${weekday} ${formatDate(date)}`;
         
         btn.addEventListener('click', () => {
