@@ -23,6 +23,8 @@ const categoryIcons = {
     food: 'fa-utensils',
     fly: 'fa-plane-departure',
     drive: 'fa-car',
+    gas: 'fa-gas-pump',
+    parking: 'fa-square-parking',
     photo: 'fa-camera',
     beach: 'fa-umbrella-beach',
     falls: 'fa-water',
