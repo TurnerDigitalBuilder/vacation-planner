@@ -586,7 +586,9 @@ function renderDestinations() {
         
         const dayLabelText = dayDetails?.label || 'Add a title for this day...';
         const temps = [dayDetails?.tempMorning, dayDetails?.tempDay, dayDetails?.tempNight].filter(t => t);
-        const tempsHtml = temps.length > 0 ? `<div class="day-temps">${temps.join(' / ')}</div>` : '';
+        const tempsHtml = temps.length > 0
+            ? `<div class="day-temps">Forecast: ${temps.map(t => `${t.replace(/°/g, '')}°`).join(' / ')}</div>`
+            : '';
         const forecastHtml = dayDetails?.forecast ? `<div class="day-forecast">${dayDetails.forecast}</div>` : '';
         const weatherHtml = (tempsHtml || forecastHtml) ? `<div class="day-weather">${tempsHtml}${forecastHtml}</div>` : '';
         
