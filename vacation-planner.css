@@ -517,6 +517,23 @@ body {
     flex-wrap: wrap;
 }
 
+.day-weather {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+    color: #555;
+}
+
+.day-temps {
+    font-weight: 500;
+}
+
+.day-forecast {
+    font-style: italic;
+}
+
 .preview-icon {
     width: 32px;
     height: 32px;
