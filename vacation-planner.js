@@ -404,11 +404,15 @@ function clearAll() {
 function openDayEditModal(date) {
     const modal = document.getElementById('dayEditModal');
     const dayDetails = dayLabels.find(d => d.date === date);
-    
+
     document.getElementById('dayEditDate').value = date;
     document.getElementById('dayLabelInput').value = dayDetails?.label || '';
     document.getElementById('dayColorInput').value = dayDetails?.color || '#f44336';
-    
+    document.getElementById('dayTempMorning').value = dayDetails?.tempMorning || '';
+    document.getElementById('dayTempDay').value = dayDetails?.tempDay || '';
+    document.getElementById('dayTempNight').value = dayDetails?.tempNight || '';
+    document.getElementById('dayForecastInput').value = dayDetails?.forecast || '';
+
     modal.style.display = 'block';
 }
 
@@ -420,13 +424,21 @@ function saveDayDetails() {
     const date = document.getElementById('dayEditDate').value;
     const label = document.getElementById('dayLabelInput').value.trim();
     const color = document.getElementById('dayColorInput').value;
+    const tempMorning = document.getElementById('dayTempMorning').value.trim();
+    const tempDay = document.getElementById('dayTempDay').value.trim();
+    const tempNight = document.getElementById('dayTempNight').value.trim();
+    const forecast = document.getElementById('dayForecastInput').value.trim();
 
     const dayDetails = dayLabels.find(d => d.date === date);
     if (dayDetails) {
         dayDetails.label = label;
         dayDetails.color = color;
+        dayDetails.tempMorning = tempMorning;
+        dayDetails.tempDay = tempDay;
+        dayDetails.tempNight = tempNight;
+        dayDetails.forecast = forecast;
     } else {
-        dayLabels.push({ date, label, color });
+        dayLabels.push({ date, label, color, tempMorning, tempDay, tempNight, forecast });
     }
     renderAll();
     closeDayEditModal();
@@ -573,6 +585,10 @@ function renderDestinations() {
         daySeparator.style.color = dayColor;
         
         const dayLabelText = dayDetails?.label || 'Add a title for this day...';
+        const temps = [dayDetails?.tempMorning, dayDetails?.tempDay, dayDetails?.tempNight].filter(t => t);
+        const tempsHtml = temps.length > 0 ? `<div class="day-temps">${temps.join(' / ')}</div>` : '';
+        const forecastHtml = dayDetails?.forecast ? `<div class="day-forecast">${dayDetails.forecast}</div>` : '';
+        const weatherHtml = (tempsHtml || forecastHtml) ? `<div class="day-weather">${tempsHtml}${forecastHtml}</div>` : '';
         
         let dayTotalTime = 0;
         const categoryCounts = {};
@@ -617,6 +633,7 @@ function renderDestinations() {
                     <button class="btn btn-edit-day" onclick="openDayEditModal('${date}')" title="Edit day title"><i class="fas fa-pencil-alt"></i></button>
                 </div>
             </div>
+            ${weatherHtml}
             <div class="day-preview">${previewHtml}</div>
         `;
 
